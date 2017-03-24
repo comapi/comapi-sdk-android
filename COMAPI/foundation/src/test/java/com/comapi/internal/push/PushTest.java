@@ -1,0 +1,93 @@
+package com.comapi.internal.push;
+
+import android.content.Intent;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.v4.content.LocalBroadcastManager;
+
+import com.comapi.BuildConfig;
+import com.comapi.internal.log.LogManager;
+import com.comapi.internal.log.Logger;
+import com.comapi.mock.ShadowGoogleApiAvailability;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.firebase.messaging.RemoteMessage;
+
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
+
+import static junit.framework.Assert.assertEquals;
+
+/**
+ * Robolectric tests for application lifecycle observer.
+ *
+ * @author Marcin Swierczek
+ *         Copyright (C) Donky Networks Ltd. All rights reserved.
+ * @version 1.0.0
+ * @since 1.0.0
+ */
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(manifest = "foundation/src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+public class PushTest {
+
+    PushManager mgr;
+
+    private String token = "initial";
+
+    private RemoteMessage message = null;
+
+    private String TOKEN = "token";
+
+    private PushMessageListener messageListener;
+
+    public void setUpComapi(String token) {
+
+        mgr = new PushManager();
+        PushTokenListener tokenListener = tokenReceived -> PushTest.this.token = tokenReceived;
+        messageListener = messageReceived -> PushTest.this.message = messageReceived;
+
+        mgr.init(RuntimeEnvironment.application, new Handler(Looper.getMainLooper()), new Logger(new LogManager(), ""), () -> token, tokenListener, messageListener);
+    }
+
+    @Test
+    @Config(shadows = {ShadowGoogleApiAvailability.class})
+    public void testCheckAvailability() {
+
+        setUpComapi(TOKEN);
+
+        // Force success
+        ShadowGoogleApiAvailability.setIsGooglePlayServicesAvailable(ConnectionResult.SUCCESS);
+        assertEquals(true, mgr.checkAvailablePush(RuntimeEnvironment.application));
+
+        // Force failure
+        ShadowGoogleApiAvailability.setIsGooglePlayServicesAvailable(ConnectionResult.API_UNAVAILABLE);
+        assertEquals(false, mgr.checkAvailablePush(RuntimeEnvironment.application));
+
+        ShadowGoogleApiAvailability.setIsGooglePlayServicesAvailable(ConnectionResult.INTERNAL_ERROR);
+        assertEquals(false, mgr.checkAvailablePush(RuntimeEnvironment.application));
+
+        ShadowGoogleApiAvailability.setIsGooglePlayServicesAvailable(ConnectionResult.SERVICE_DISABLED);
+        assertEquals(false, mgr.checkAvailablePush(RuntimeEnvironment.application));
+    }
+
+    @Test
+    @Config(shadows = {ShadowGoogleApiAvailability.class})
+    public void testGetToken() {
+
+        setUpComapi(TOKEN);
+
+        Intent intent = new Intent(IDService.ACTION_REFRESH_PUSH);
+        LocalBroadcastManager.getInstance(RuntimeEnvironment.application).sendBroadcast(intent);
+        assertEquals(TOKEN, token);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        mgr.unregisterPushReceiver(RuntimeEnvironment.application);
+    }
+
+}

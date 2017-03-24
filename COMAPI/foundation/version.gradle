@@ -1,0 +1,38 @@
+/*
+
+    Defines version and build number
+
+*/
+
+ext.foundationVersion = '1.0.0'
+
+def isFoundationRelease = System.getenv("isparagonrelease")
+ext.isReleaseVersion = isFoundationRelease != null ? isFoundationRelease : false
+
+if (!isReleaseVersion) {
+    foundationVersion = foundationVersion + '-SNAPSHOT'
+}
+
+if (project.hasProperty("teamcity")) {
+    ext.foundationBuildNumber = teamcity['build.number']
+} else {
+    ext.foundationBuildNumber = getDate()
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
+}
+
+task printFoundationVersion << {
+    logger.lifecycle("Version number is " + foundationVersion)
+    println foundationVersion
+}
+
+task printBuildNumber << {
+    logger.lifecycle("Build number is " + foundationBuildNumber)
+    println foundationBuildNumber
+}
+
+//logger.lifecycle("##teamcity[buildNumber '"+foundationBuildNumber+"']")

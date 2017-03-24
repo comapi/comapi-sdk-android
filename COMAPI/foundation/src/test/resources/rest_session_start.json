@@ -1,0 +1,6 @@
+{
+  "authenticationId": "someId",
+  "provider": "jsonWebToken",
+  "nonce": "someNonce",
+  "expiresOn": "2100-01-01T08:15:05.525Z"
+}

@@ -1,0 +1,36 @@
+{
+  "eventId": "id",
+  "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b",
+  "name": "conversation.create",
+  "payload": {
+    "id": "myConversationId",
+    "name": "myConversation",
+    "roles": {
+      "owner": {
+        "canSend": true,
+        "canAddParticipants": true,
+        "canRemoveParticipants": true
+      },
+      "participant": {
+        "canSend": true,
+        "canAddParticipants": true,
+        "canRemoveParticipants": true
+      }
+    },
+    "isPublic": true,
+    "participants": [
+      {
+        "profileId": "alex.stevens",
+        "role": "owner",
+        "conversationId": "myConversationId",
+        "apiSpaceId": "54be6d41-b157-4d8b-8fc1-cae2d278d427"
+      }
+    ]
+  },
+  "context": {
+    "createdBy": "user"
+  },
+  "revision": 40,
+  "conversationId": "id",
+  "publishedOn": "2016-10-13T07:53:05.555Z"
+}

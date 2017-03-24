@@ -1,0 +1,20 @@
+[
+  {
+    "id": "someProfileId",
+    "name": "My conversation",
+    "description": "01:10:31 10/21/2016 by someProfileId",
+    "roles": {
+      "owner": {
+        "canAddParticipants": true,
+        "canRemoveParticipants": true,
+        "canSend": true
+      },
+      "participant": {
+        "canAddParticipants": true,
+        "canRemoveParticipants": true,
+        "canSend": true
+      }
+    },
+    "isPublic": false
+  }
+]

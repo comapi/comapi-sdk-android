@@ -1,0 +1,71 @@
+{
+  "latestEventId": 38,
+  "earliestEventId": 0,
+  "messages": [
+    {
+      "id": "60526ba0-76b3-4f33-9e2e-20f4a8bb548b",
+      "metadata": {
+        "key": "value"
+      },
+      "context": {
+        "from": {
+          "id": "userA",
+          "name": "userA"
+        },
+        "conversationId": "someId",
+        "sentBy": "userA",
+        "sentOn": "2016-10-21T14:41:29.122Z"
+      },
+      "parts": [
+        {
+          "data": "some message",
+          "name": "body",
+          "size": 12,
+          "type": "text/plain"
+        }
+      ],
+      "statusUpdates": {
+        "userB": {
+          "status": "read",
+          "on": "2016-10-21T14:51:13.073Z"
+        }
+      }
+    },
+    {
+      "id": "a36c8c12-ebbb-4280-bdd7-60e0d0c620ab",
+      "metadata": {
+        "key": "value"
+      },
+      "context": {
+        "from": {
+          "id": "userA",
+          "name": "userA"
+        },
+        "conversationId": "comeId",
+        "sentBy": "userA",
+        "sentOn": "2016-10-21T14:40:38.158Z"
+      },
+      "parts": [
+        {
+          "data": "some message",
+          "name": "body",
+          "size": 12,
+          "type": "text/plain",
+          "url": "some url"
+        }
+      ],
+      "statusUpdates": {
+        "userB": {
+          "status": "read",
+          "on": "2016-10-21T14:50:19.978Z"
+        }
+      }
+    }
+  ],
+  "orphanedEvents": [
+    {
+      "eventId": "7b1e1b82-d9fa-436f-9a74-1069c2153acc",
+      "name": "someName"
+    }
+  ]
+}

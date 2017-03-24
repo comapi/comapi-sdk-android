@@ -1,0 +1,18 @@
+{
+  "token": "someSessionToken",
+  "session": {
+    "id": "someSessionId",
+    "nonce": "someNonce",
+    "provider": "jsonWebToken",
+    "expiresOn": "2100-01-01T08:10:05.988Z",
+    "isActive": true,
+    "state": "SessionStarted",
+    "deviceId": "someDeviceId",
+    "platform": "android",
+    "platformVersion": "6.0.1",
+    "sdkType": "native",
+    "sdkVersion": "0.79123",
+    "sourceIp": "",
+    "profileId": "someProfileId"
+  }
+}

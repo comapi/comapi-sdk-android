@@ -1,0 +1,225 @@
+[
+  {
+    "eventId": "7b1e1b82-d9fa-436f-9a74-1069c2153acc",
+    "name": "conversationMessage.sent",
+    "conversationId": "adf",
+    "conversationEventId": 36,
+    "payload": {
+      "messageId": "60526ba0-76b3-4f33-9e2e-20f4a8bb548b",
+      "metadata": {
+        "key": "value"
+      },
+      "context": {
+        "from": {
+          "id": "userAA",
+          "name": "userAA"
+        },
+        "conversationId": "adf",
+        "sentBy": "userAA",
+        "sentOn": "2016-10-21T14:41:29.122Z"
+      },
+      "parts": [
+        {
+          "data": "non",
+          "name": "body",
+          "size": 3,
+          "type": "text/plain"
+        }
+      ],
+      "alert": {
+        "platforms": {
+          "apns": {
+          },
+          "fcm": {
+            "collapse_key": "",
+            "data": {
+              "conversationId": "adf"
+            },
+            "notification": {
+              "body": "non",
+              "title": "adf"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "eventId": "deee4588-1567-4c46-99a0-c010b491064a",
+    "name": "conversationMessage.delivered",
+    "conversationId": "adf",
+    "conversationEventId": 37,
+    "payload": {
+      "messageId": "60526ba0-76b3-4f33-9e2e-20f4a8bb548b",
+      "conversationId": "adf",
+      "profileId": "userBB",
+      "timestamp": "2016-10-21T14:51:13.053Z"
+    }
+  },
+  {
+    "eventId": "b3e58e2d-d8f1-4e6f-a668-9f526d9eb0fb",
+    "name": "conversationMessage.read",
+    "conversationId": "adf",
+    "conversationEventId": 38,
+    "payload": {
+      "messageId": "60526ba0-76b3-4f33-9e2e-20f4a8bb548b",
+      "conversationId": "adf",
+      "profileId": "userBB",
+      "timestamp": "2016-10-21T14:51:13.073Z"
+    }
+  },
+  {
+    "eventId": "id",
+    "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b",
+    "name": "conversation.create",
+    "payload": {
+      "id": "myConversationId",
+      "name": "myConversation",
+      "roles": {
+        "owner": {
+          "canSend": true,
+          "canAddParticipants": true,
+          "canRemoveParticipants": true
+        },
+        "participant": {
+          "canSend": true,
+          "canAddParticipants": true,
+          "canRemoveParticipants": true
+        }
+      },
+      "isPublic": true,
+      "participants": [
+        {
+          "profileId": "alex.stevens",
+          "role": "owner",
+          "conversationId": "myConversationId",
+          "apiSpaceId": "54be6d41-b157-4d8b-8fc1-cae2d278d427"
+        }
+      ]
+    },
+    "context": {
+      "createdBy": "user"
+    },
+    "revision": 40,
+    "conversationEventId": 40,
+    "publishedOn": "2016-10-13T07:53:05.555Z"
+  },
+  {
+    "eventId": "id",
+    "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b",
+    "name": "conversation.delete",
+    "payload": {
+      "date": "2016-10-05T13:03:06.375Z"
+    },
+    "context": {
+      "createdBy": "user"
+    },
+    "revision": 40,
+    "conversationEventId": 40,
+    "publishedOn": "2016-10-13T07:53:05.555Z"
+  },
+  {
+    "eventId": "id",
+    "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b",
+    "name": "conversation.undelete",
+    "payload": {
+      "id": "myConversationId",
+      "name": "myNewConversation",
+      "description": "myConversationDescription",
+      "roles": {
+        "owner": {
+          "canSend": true,
+          "canAddParticipants": true,
+          "canRemoveParticipants": true
+        },
+        "participant": {
+          "canSend": false,
+          "canAddParticipants": false,
+          "canRemoveParticipants": false
+        }
+      },
+      "isPublic": true
+    },
+    "context": {
+      "createdBy": "user"
+    },
+    "revision": 40,
+    "conversationEventId": 40,
+    "publishedOn": "2016-10-13T07:53:05.555Z"
+  },
+  {
+    "eventId": "id",
+    "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b",
+    "name": "conversation.update",
+    "payload": {
+      "id": "myConversationId",
+      "name": "myNewConversation",
+      "description": "myConversationDescription",
+      "roles": {
+        "owner": {
+          "canSend": true,
+          "canAddParticipants": true,
+          "canRemoveParticipants": true
+        },
+        "participant": {
+          "canSend": true,
+          "canAddParticipants": true,
+          "canRemoveParticipants": true
+        }
+      }
+    },
+    "context": {
+      "createdBy": "user"
+    },
+    "revision": 40,
+    "conversationEventId": 40,
+    "publishedOn": "2016-10-13T07:53:05.555Z"
+  },
+  {
+    "eventId": "ef780f36-271b-4bd3-93a5-31a30118e7c7",
+    "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b",
+    "name": "conversation.participantAdded",
+    "payload": {
+      "profileId": "user",
+      "role": "owner",
+      "conversationId": "conversation",
+      "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b"
+    },
+    "context": {
+      "createdBy": "user"
+    },
+    "conversationId": "conversation",
+    "publishedOn": "2016-10-17T12:05:34.795Z"
+  },
+  {
+    "eventId": "ef780f36-271b-4bd3-93a5-31a30118e7c7",
+    "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b",
+    "name": "conversation.participantUpdated",
+    "payload": {
+      "profileId": "user",
+      "role": "owner",
+      "conversationId": "conversation",
+      "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b"
+    },
+    "context": {
+      "createdBy": "user"
+    },
+    "conversationId": "conversation",
+    "publishedOn": "2016-10-17T12:05:34.795Z"
+  },
+  {
+    "eventId": "ef780f36-271b-4bd3-93a5-31a30118e7c7",
+    "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b",
+    "name": "conversation.participantRemoved",
+    "payload": {
+      "profileId": "user",
+      "conversationId": "conversation",
+      "apiSpaceId": "c7e5b7ed-7fe8-4c92-9035-5d190d43a22b"
+    },
+    "context": {
+      "createdBy": "user"
+    },
+    "conversationId": "conversation",
+    "publishedOn": "2016-10-17T12:05:34.795Z"
+  }
+]

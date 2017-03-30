@@ -248,6 +248,14 @@ public class ServiceAccessor {
          * @param callback       Callback with the result.
          */
         void queryMessages(@NonNull final String conversationId, final Long from, @NonNull final Integer limit, @Nullable Callback<ComapiResult<MessagesQueryResponse>> callback);
+
+        /**
+         * Sends participant is typing in conversation event.
+         *
+         * @param conversationId ID of a conversation in which participant is typing a message.
+         * @param callback       Callback with the result.
+         */
+        void isTyping(@NonNull final String conversationId, @Nullable Callback<ComapiResult<Void>> callback);
     }
 
     /**

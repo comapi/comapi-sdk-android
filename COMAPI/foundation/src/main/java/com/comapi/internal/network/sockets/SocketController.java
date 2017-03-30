@@ -42,6 +42,8 @@ public class SocketController {
 
     private final SocketEventListener listener;
 
+    private final Object lock;
+
     /**
      * Recommended constructor.
      *
@@ -52,6 +54,7 @@ public class SocketController {
      * @param proxyURI  Proxy URI
      */
     public SocketController(@NonNull DataManager dataMgr, SocketEventListener listener, @NonNull Logger log, @NonNull URI socketURI, URI proxyURI) {
+        this.lock = new Object();
         this.dataMgr = dataMgr;
         this.listener = listener;
         this.log = log;
@@ -65,17 +68,20 @@ public class SocketController {
      */
     public void connectSocket() {
 
-        if (isForegrounded) {
-            if (socketConnection == null) {
-                SocketFactory factory = new SocketFactory(socketURI, new SocketEventDispatcher(listener, new Parser()).setLogger(log), log);
-                socketConnection = new SocketConnectionController(new Handler(Looper.getMainLooper()), dataMgr, factory, new RetryStrategy(60, 60000), log);
-                socketConnection.setProxy(proxyURI);
-                socketConnection.connect();
+        synchronized (lock) {
+            if (isForegrounded) {
+                if (socketConnection == null) {
+                    SocketFactory factory = new SocketFactory(socketURI, new SocketEventDispatcher(listener, new Parser()).setLogger(log), log);
+                    socketConnection = new SocketConnectionController(new Handler(Looper.getMainLooper()), dataMgr, factory, new RetryStrategy(60, 60000), log);
+                    socketConnection.setProxy(proxyURI);
+                    socketConnection.connect();
 
-            } else {
-                socketConnection.connect();
+                } else {
+                    socketConnection.connect();
+                }
+                socketConnection.setManageReconnection(true);
             }
-            socketConnection.setManageReconnection(true);
+            lock.notifyAll();
         }
     }
 
@@ -83,9 +89,12 @@ public class SocketController {
      * Disconnect socket.
      */
     public void disconnectSocket() {
-        if (socketConnection != null) {
-            socketConnection.disconnect();
-            socketConnection.setManageReconnection(false);
+        synchronized (lock) {
+            if (socketConnection != null) {
+                socketConnection.setManageReconnection(false);
+                socketConnection.disconnect();
+            }
+            lock.notifyAll();
         }
     }
 
@@ -99,24 +108,30 @@ public class SocketController {
 
             @Override
             public void onForegrounded(Context context) {
-                if (!isForegrounded) {
-                    isForegrounded = true;
-                    connectSocket();
-                    if (receiver == null) {
-                        receiver = new InternetConnectionReceiver(socketConnection);
+                synchronized (lock) {
+                    if (!isForegrounded) {
+                        isForegrounded = true;
+                        connectSocket();
+                        if (receiver == null) {
+                            receiver = new InternetConnectionReceiver(socketConnection);
+                        }
+                        context.registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
                     }
-                    context.registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+                    lock.notifyAll();
                 }
             }
 
             @Override
             public void onBackgrounded(Context context) {
-                if (isForegrounded) {
-                    isForegrounded = false;
-                    disconnectSocket();
-                    if (receiver != null && !isForegrounded) {
-                        context.unregisterReceiver(receiver);
+                synchronized (lock) {
+                    if (isForegrounded) {
+                        isForegrounded = false;
+                        disconnectSocket();
+                        if (receiver != null && !isForegrounded) {
+                            context.unregisterReceiver(receiver);
+                        }
                     }
+                    lock.notifyAll();
                 }
             }
         };

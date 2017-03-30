@@ -705,6 +705,33 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
     }
 
     /**
+     * Send 'user is typing'.
+     *
+     * @param conversationId ID of a conversation.
+     * @return Observable to send event.
+     */
+    public Observable<ComapiResult<Void>> isTyping(@NonNull final String conversationId) {
+
+        final String token = getToken();
+
+        if (sessionController.isCreatingSession() || TextUtils.isEmpty(token)) {
+            return Observable.error(getSessionStateErrorDescription());
+        } else {
+            return doIsTyping(token, conversationId);
+        }
+    }
+
+    /**
+     * Send 'user is typing' message for specified conversation.
+     *
+     * @param conversationId ID of a conversation.
+     * @param callback       Callback to deliver result.
+     */
+    public void isTyping(@NonNull final String conversationId, @Nullable Callback<ComapiResult<Void>> callback) {
+        adapter.adapt(isTyping(conversationId), callback);
+    }
+
+    /**
      * Is session successfully created.
      *
      * @return True if session is created.

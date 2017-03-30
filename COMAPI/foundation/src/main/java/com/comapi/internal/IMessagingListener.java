@@ -6,6 +6,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUndelet
 import com.comapi.internal.network.model.events.conversation.ConversationUpdateEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -90,4 +91,10 @@ public interface IMessagingListener {
      */
     void onConversationUndeleted(ConversationUndeleteEvent event);
 
+    /**
+     * Dispatch participant is typing in conversation event.
+     *
+     * @param event Event to dispatch.
+     */
+    void onParticipantIsTyping(ParticipantTypingEvent event);
 }

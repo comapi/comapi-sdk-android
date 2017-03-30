@@ -1,5 +1,8 @@
 package com.comapi.internal.network.sockets;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.comapi.internal.Parser;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.model.events.Event;
@@ -10,6 +13,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUndelet
 import com.comapi.internal.network.model.events.conversation.ConversationUpdateEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -32,6 +36,8 @@ public class SocketEventDispatcher implements SocketMessageListener {
 
     private final SocketEventListener listener;
 
+    private Handler handler;
+
     /**
      * Recommended constructor.
      *
@@ -41,6 +47,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
     public SocketEventDispatcher(SocketEventListener listener, Parser parser) {
         this.listener = listener;
         this.parser = parser;
+        this.handler = new Handler(Looper.getMainLooper());
     }
 
     /**
@@ -90,10 +97,17 @@ public class SocketEventDispatcher implements SocketMessageListener {
                         onSocketStarted(parser.parse(event, SocketStartEvent.class));
                     } else if (ProfileUpdateEvent.TYPE.equals(name)) {
                         onProfileUpdate(parser.parse(event, ProfileUpdateEvent.class));
+                    } else if (ParticipantTypingEvent.TYPE.equals(name)) {
+                        onParticipantIsTyping(parser.parse(event, ParticipantTypingEvent.class));
                     }
                 }
             }
         }
+    }
+
+    private void onParticipantIsTyping(ParticipantTypingEvent event) {
+        handler.post(() -> listener.onParticipantIsTyping(event));
+        log("Event published " + event.toString());
     }
 
     /**
@@ -102,7 +116,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     private void onProfileUpdate(ProfileUpdateEvent event) {
-        listener.onProfileUpdate(event);
+        handler.post(() -> listener.onProfileUpdate(event));
         log("Event published " + event.toString());
     }
 
@@ -112,7 +126,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     private void onMessageSent(MessageSentEvent event) {
-        listener.onMessageSent(event);
+        handler.post(() -> listener.onMessageSent(event));
         log("Event published " + event.toString());
     }
 
@@ -122,7 +136,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     void onMessageDelivered(MessageDeliveredEvent event) {
-        listener.onMessageDelivered(event);
+        handler.post(() -> listener.onMessageDelivered(event));
         log("Event published " + event.toString());
     }
 
@@ -132,7 +146,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     void onMessageRead(MessageReadEvent event) {
-        listener.onMessageRead(event);
+        handler.post(() -> listener.onMessageRead(event));
         log("Event published " + event.toString());
     }
 
@@ -142,7 +156,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     private void onSocketStarted(SocketStartEvent event) {
-        listener.onSocketStarted(event);
+        handler.post(() -> listener.onSocketStarted(event));
         log("Event published " + event.toString());
     }
 
@@ -152,7 +166,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     private void onParticipantAdded(ParticipantAddedEvent event) {
-        listener.onParticipantAdded(event);
+        handler.post(() -> listener.onParticipantAdded(event));
         log("Event published " + event.toString());
     }
 
@@ -162,7 +176,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     private void onParticipantUpdated(ParticipantUpdatedEvent event) {
-        listener.onParticipantUpdated(event);
+        handler.post(() -> listener.onParticipantUpdated(event));
         log("Event published " + event.toString());
     }
 
@@ -172,7 +186,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     private void onParticipantRemoved(ParticipantRemovedEvent event) {
-        listener.onParticipantRemoved(event);
+        handler.post(() -> listener.onParticipantRemoved(event));
         log("Event published " + event.toString());
     }
 
@@ -182,7 +196,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     private void onConversationUpdated(ConversationUpdateEvent event) {
-        listener.onConversationUpdated(event);
+        handler.post(() -> listener.onConversationUpdated(event));
         log("Event published " + event.toString());
     }
 
@@ -192,7 +206,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     private void onConversationDeleted(ConversationDeleteEvent event) {
-        listener.onConversationDeleted(event);
+        handler.post(() -> listener.onConversationDeleted(event));
         log("Event published " + event.toString());
     }
 
@@ -202,7 +216,7 @@ public class SocketEventDispatcher implements SocketMessageListener {
      * @param event Event to dispatch.
      */
     private void onConversationUndeleted(ConversationUndeleteEvent event) {
-        listener.onConversationUndeleted(event);
+        handler.post(() -> listener.onConversationUndeleted(event));
         log("Event published " + event.toString());
     }
 

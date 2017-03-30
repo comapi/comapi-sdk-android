@@ -259,6 +259,14 @@ public class RxServiceAccessor {
          * @return Observable to get messages in a conversation.
          */
         Observable<ComapiResult<MessagesQueryResponse>> queryMessages(@NonNull final String conversationId, final Long from, @NonNull final Integer limit);
+
+        /**
+         * Sends participant is typing in conversation event.
+         *
+         * @param conversationId ID of a conversation in which participant is typing a message.
+         * @return Observable to send event.
+         */
+        Observable<ComapiResult<Void>> isTyping(@NonNull final String conversationId);
     }
 
     /**

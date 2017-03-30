@@ -9,6 +9,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUndelet
 import com.comapi.internal.network.model.events.conversation.ConversationUpdateEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -186,6 +187,17 @@ public class ListenerListAdapter implements SocketEventListener, ISessionListene
                 listener.onProfileUpdate(event);
             } catch (Exception e) {
                 logError(e, "profile "+event.getProfileId()+" updated");
+            }
+        }
+    }
+
+    @Override
+    public void onParticipantIsTyping(ParticipantTypingEvent event) {
+        for (IMessagingListener listener : messagingListeners) {
+            try {
+                listener.onParticipantIsTyping(event);
+            } catch (Exception e) {
+                logError(e, "is typing");
             }
         }
     }

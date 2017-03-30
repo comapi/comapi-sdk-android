@@ -29,6 +29,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUndelet
 import com.comapi.internal.network.model.events.conversation.ConversationUpdateEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -197,6 +198,11 @@ public class ServiceTest {
 
             @Override
             public void onProfileUpdate(ProfileUpdateEvent event) {
+
+            }
+
+            @Override
+            public void onParticipantIsTyping(ParticipantTypingEvent event) {
 
             }
         }, log, new URI("ws://auth"), null));
@@ -427,7 +433,6 @@ public class ServiceTest {
         map.put("key", "value");
         map.put("key2", 312);
 
-        //TODO NOT WORKING ETAG null
         service.updateProfile(map, "eTag").toBlocking().forEach(response -> {
             assertEquals(true, response.isSuccessful());
             assertEquals(200, response.getCode());
@@ -457,6 +462,36 @@ public class ServiceTest {
     public void updateProfile_noSession_shouldFail() throws Exception {
         DataTestHelper.clearSessionData();
         queryProfile();
+    }
+
+    @Test
+    public void isTyping() {
+        server.enqueue(new MockResponse().setResponseCode(200));
+        service.isTyping("conversationId").toBlocking().forEach(response -> {
+            assertEquals(true, response.isSuccessful());
+            assertEquals(200, response.getCode());
+        });
+    }
+
+    @Test
+    public void isTyping_sessionCreateInProgress() throws Exception {
+        isCreateSessionInProgress.set(true);
+        service.isTyping("conversationId").timeout(3, TimeUnit.SECONDS).subscribe(getEmptyObserver());
+        // Not adding
+        assertEquals(0, service.getTaskQueue().queue.size());
+    }
+
+    @Test(expected = ComapiException.class)
+    public void isTyping_sessionCreateInProgress_noToken() throws Exception {
+        DataTestHelper.clearSessionData();
+        isCreateSessionInProgress.set(false);
+        service.isTyping("conversationId").timeout(3, TimeUnit.SECONDS).toBlocking().subscribe();
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void isTyping_noSession_shouldFail() throws Exception {
+        DataTestHelper.clearSessionData();
+        isTyping();
     }
 
     @Test

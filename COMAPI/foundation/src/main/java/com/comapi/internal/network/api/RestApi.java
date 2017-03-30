@@ -117,6 +117,10 @@ public interface RestApi {
     @PUT("/apispaces/{apiSpaceId}/conversations/{conversationId}")
     Observable<Response<ConversationDetails>> updateConversation(@Header("Authorization") String authorization, @Path("apiSpaceId") String apiSpaceId, @Path("conversationId") String conversationId, @Body ConversationUpdate conversationUpdate);
 
+    @Headers({"Accept: application/json"})
+    @POST("/apispaces/{apiSpaceId}/conversations/{conversationId}/typing")
+    Observable<Response<Void>> isTyping(@Header("Authorization") String authorization, @Path("apiSpaceId") String apiSpaceId, @Path("conversationId") String conversationId);
+
     /*
      * participants
      */
@@ -152,7 +156,6 @@ public interface RestApi {
     @Headers({"Accept: application/json"})
     @GET("/apispaces/{apiSpaceId}/conversations/{conversationId}/events")
     Observable<Response<List<JsonObject>>> queryEvents(@Header("Authorization") String authorization, @Path("apiSpaceId") String apiSpaceId, @Path("conversationId") String conversationId, @Query("from") final Long from, @Query("limit") final Integer limit);
-
 
     /*
      * FB

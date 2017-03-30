@@ -8,16 +8,15 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 
 import com.comapi.BuildConfig;
+import com.comapi.helpers.DataTestHelper;
 import com.comapi.internal.data.DataManager;
 import com.comapi.internal.helpers.HelpersTest;
-import com.comapi.internal.log.Logger;
-import com.neovisionaries.ws.client.WebSocketAdapter;
-
-import com.comapi.helpers.DataTestHelper;
 import com.comapi.internal.lifecycle.LifeCycleController;
 import com.comapi.internal.lifecycle.LifecycleListener;
 import com.comapi.internal.log.LogLevel;
 import com.comapi.internal.log.LogManager;
+import com.comapi.internal.log.Logger;
+import com.neovisionaries.ws.client.WebSocketAdapter;
 
 import org.junit.After;
 import org.junit.Before;
@@ -75,6 +74,8 @@ public class SocketTest {
     private SocketController socketController;
 
     private static final int LIMIT = 1000;
+    private Handler handler;
+    private RetryStrategy retryStrategy;
 
     @Before
     public void setUpComapi() throws Exception {
@@ -94,7 +95,9 @@ public class SocketTest {
                 },
                 log);
 
-        socketConnectionController = new SocketConnectionController(new Handler(), dataMgr, testSocketFactory, new RetryStrategy(1, 0), log) {
+        handler = new Handler();
+        retryStrategy = new RetryStrategy(1, 0);
+        socketConnectionController = new SocketConnectionController(handler, dataMgr, testSocketFactory, retryStrategy, log) {
 
             @Override
             public void onConnected() {
@@ -148,7 +151,7 @@ public class SocketTest {
         assertTrue(socketController.isAllowedToConnect());
 
         controller.pause().stop().saveInstanceState(new Bundle()).destroy().get();
-        HelpersTest.waitSomeTime(30000);
+        HelpersTest.waitSomeTime(3000);
         assertFalse(socketController.isAllowedToConnect());
 
         controller = Robolectric.buildActivity(Activity.class);
@@ -188,10 +191,13 @@ public class SocketTest {
 
     @Test
     public void testSocketReconnect() {
+        retryStrategy = new RetryStrategy(0, 0);
         socketConnectionController.setManageReconnection(true);
         socketConnectionController.connect();
         socketConnectionController.onError(null, null, null);
+        handler.removeCallbacksAndMessages(null);
         socketConnectionController.onConnected();
+        retryStrategy = new RetryStrategy(1, 0);
     }
 
     @Test

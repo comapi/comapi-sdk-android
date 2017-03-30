@@ -249,6 +249,17 @@ class ServiceApiWrapper extends ApiWrapper {
     }
 
     /**
+     * Send 'user is typing' message for specified conversation.
+     *
+     * @param token Comapi access token.
+     * @param conversationId Id of the conversation.
+     * @return Observable to send 'is typing' notification.
+     */
+    Observable<ComapiResult<Void>> doIsTyping(@NonNull final String token, @NonNull final String conversationId) {
+        return wrapObservable(service.isTyping(AuthManager.addAuthPrefix(token), apiSpaceId, conversationId).map(mapToComapiResult()));
+    }
+
+    /**
      * Maps service response to Comapi result object.
      *
      * @param <E>nClass of the service call result.

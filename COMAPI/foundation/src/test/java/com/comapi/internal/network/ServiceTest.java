@@ -50,6 +50,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUpdateE
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingOffEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -221,6 +222,11 @@ public class ServiceTest {
 
             @Override
             public void onParticipantIsTyping(ParticipantTypingEvent event) {
+
+            }
+
+            @Override
+            public void onParticipantTypingOff(ParticipantTypingOffEvent event) {
 
             }
         }, log, new URI("ws://auth"), null));
@@ -492,9 +498,24 @@ public class ServiceTest {
     }
 
     @Test
+    public void isNotTyping() {
+
+        server.enqueue(new MockResponse().setResponseCode(200));
+        service.isTyping("conversationId", false).toBlocking().forEach(response -> {
+            assertEquals(true, response.isSuccessful());
+            assertEquals(200, response.getCode());
+        });
+    }
+
+    @Test
     public void isTyping_sessionCreateInProgress() throws Exception {
         isCreateSessionInProgress.set(true);
+
         service.isTyping("conversationId").timeout(3, TimeUnit.SECONDS).subscribe(getEmptyObserver());
+        // Not adding
+        assertEquals(0, service.getTaskQueue().queue.size());
+
+        service.isTyping("conversationId", false).timeout(3, TimeUnit.SECONDS).subscribe(getEmptyObserver());
         // Not adding
         assertEquals(0, service.getTaskQueue().queue.size());
     }
@@ -506,10 +527,23 @@ public class ServiceTest {
         service.isTyping("conversationId").timeout(3, TimeUnit.SECONDS).toBlocking().subscribe();
     }
 
+    @Test(expected = ComapiException.class)
+    public void isNotTyping_sessionCreateInProgress_noToken() throws Exception {
+        DataTestHelper.clearSessionData();
+        isCreateSessionInProgress.set(false);
+        service.isTyping("conversationId", false).timeout(3, TimeUnit.SECONDS).toBlocking().subscribe();
+    }
+
     @Test(expected = RuntimeException.class)
     public void isTyping_noSession_shouldFail() throws Exception {
         DataTestHelper.clearSessionData();
         isTyping();
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void isNotTyping_noSession_shouldFail() throws Exception {
+        DataTestHelper.clearSessionData();
+        isNotTyping();
     }
 
     @Test

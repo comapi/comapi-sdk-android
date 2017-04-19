@@ -27,6 +27,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUpdateE
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingOffEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -116,4 +117,11 @@ public interface IMessagingListener {
      * @param event Event to dispatch.
      */
     void onParticipantIsTyping(ParticipantTypingEvent event);
+
+    /**
+     * Dispatch participant stopped typing in conversation event.
+     *
+     * @param event Event to dispatch.
+     */
+    void onParticipantTypingOff(ParticipantTypingOffEvent event);
 }

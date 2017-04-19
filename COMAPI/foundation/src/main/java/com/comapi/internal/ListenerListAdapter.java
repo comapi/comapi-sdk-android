@@ -30,6 +30,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUpdateE
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingOffEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -101,7 +102,6 @@ public class ListenerListAdapter implements SocketEventListener, ISessionListene
             } catch (Exception e) {
                 logError(e, "message delivered "+event.getMessageId());
             }
-
         }
     }
 
@@ -118,7 +118,6 @@ public class ListenerListAdapter implements SocketEventListener, ISessionListene
             } catch (Exception e) {
                 logError(e, "message read "+event.getMessageId());
             }
-
         }
     }
 
@@ -215,6 +214,17 @@ public class ListenerListAdapter implements SocketEventListener, ISessionListene
         for (IMessagingListener listener : messagingListeners) {
             try {
                 listener.onParticipantIsTyping(event);
+            } catch (Exception e) {
+                logError(e, "is typing");
+            }
+        }
+    }
+
+    @Override
+    public void onParticipantTypingOff(ParticipantTypingOffEvent event) {
+        for (IMessagingListener listener : messagingListeners) {
+            try {
+                listener.onParticipantTypingOff(event);
             } catch (Exception e) {
                 logError(e, "is typing");
             }

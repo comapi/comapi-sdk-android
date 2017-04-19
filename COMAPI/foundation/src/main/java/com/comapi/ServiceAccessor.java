@@ -269,12 +269,21 @@ public class ServiceAccessor {
         void queryMessages(@NonNull final String conversationId, final Long from, @NonNull final Integer limit, @Nullable Callback<ComapiResult<MessagesQueryResponse>> callback);
 
         /**
-         * Sends participant is typing in conversation event.
+         * Sends information that the participant started typing a new message in a conversation.
          *
          * @param conversationId ID of a conversation in which participant is typing a message.
          * @param callback       Callback with the result.
          */
         void isTyping(@NonNull final String conversationId, @Nullable Callback<ComapiResult<Void>> callback);
+
+        /**
+         * Sends information to if the participant started or stopped typing a new message in a conversation.
+         *
+         * @param conversationId ID of a conversation in which participant is typing a message.
+         * @param isTyping       True if participant is typing, false if he has stopped typing.
+         * @param callback       Callback with the result.
+         */
+        void isTyping(@NonNull final String conversationId, final boolean isTyping, @Nullable Callback<ComapiResult<Void>> callback);
     }
 
     /**

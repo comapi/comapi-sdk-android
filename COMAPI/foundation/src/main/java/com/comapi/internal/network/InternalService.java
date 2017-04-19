@@ -736,7 +736,7 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
         if (sessionController.isCreatingSession() || TextUtils.isEmpty(token)) {
             return Observable.error(getSessionStateErrorDescription());
         } else {
-            return doIsTyping(token, conversationId);
+            return doIsTyping(token, conversationId, true);
         }
     }
 
@@ -747,7 +747,36 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
      * @param callback       Callback to deliver result.
      */
     public void isTyping(@NonNull final String conversationId, @Nullable Callback<ComapiResult<Void>> callback) {
-        adapter.adapt(isTyping(conversationId), callback);
+        adapter.adapt(isTyping(conversationId, true), callback);
+    }
+
+    /**
+     * Send participant typing type of event for a specified conversation.
+     *
+     * @param conversationId ID of a conversation.
+     * @param isTyping       True if participant is typing, false if he has stopped typing.
+     * @return Observable to send event.
+     */
+    public Observable<ComapiResult<Void>> isTyping(@NonNull final String conversationId, final boolean isTyping) {
+
+        final String token = getToken();
+
+        if (sessionController.isCreatingSession() || TextUtils.isEmpty(token)) {
+            return Observable.error(getSessionStateErrorDescription());
+        } else {
+            return doIsTyping(token, conversationId, isTyping);
+        }
+    }
+
+    /**
+     * Send participant typing type of event for a specified conversation.
+     *
+     * @param conversationId ID of a conversation.
+     * @param isTyping       True if participant is typing, false if he has stopped typing.
+     * @param callback       Callback to deliver result.
+     */
+    public void isTyping(@NonNull final String conversationId, final boolean isTyping, @Nullable Callback<ComapiResult<Void>> callback) {
+        adapter.adapt(isTyping(conversationId, isTyping), callback);
     }
 
     /**

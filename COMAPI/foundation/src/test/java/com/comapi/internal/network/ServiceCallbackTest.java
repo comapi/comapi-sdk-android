@@ -56,6 +56,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUpdateE
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingOffEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -261,6 +262,11 @@ public class ServiceCallbackTest {
 
             @Override
             public void onParticipantIsTyping(ParticipantTypingEvent event) {
+
+            }
+
+            @Override
+            public void onParticipantTypingOff(ParticipantTypingOffEvent event) {
 
             }
         }, log, new URI("ws://auth"), null));
@@ -842,6 +848,22 @@ public class ServiceCallbackTest {
         final MockCallback<ComapiResult<Void>> listener = new MockCallback<>();
 
         service.isTyping("conversationId", listener);
+
+        synchronized (listener) {
+            listener.wait(TIME_OUT);
+        }
+        assertEquals(true, listener.getResult().isSuccessful());
+        assertEquals(200, listener.getResult().getCode());
+    }
+
+    @Test
+    public void isNotTyping() throws InterruptedException {
+
+        server.enqueue(new MockResponse().setResponseCode(200));
+
+        final MockCallback<ComapiResult<Void>> listener = new MockCallback<>();
+
+        service.isTyping("conversationId", false, listener);
 
         synchronized (listener) {
             listener.wait(TIME_OUT);

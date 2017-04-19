@@ -280,12 +280,21 @@ public class RxServiceAccessor {
         Observable<ComapiResult<MessagesQueryResponse>> queryMessages(@NonNull final String conversationId, final Long from, @NonNull final Integer limit);
 
         /**
-         * Sends participant is typing in conversation event.
+         * Sends information that the participant started typing a new message in a conversation.
          *
          * @param conversationId ID of a conversation in which participant is typing a message.
          * @return Observable to send event.
          */
         Observable<ComapiResult<Void>> isTyping(@NonNull final String conversationId);
+
+        /**
+         * Sends information to if the participant started or stopped typing a new message in a conversation.
+         *
+         * @param conversationId ID of a conversation in which participant is typing a message.
+         * @param isTyping       True if participant is typing, false if he has stopped typing.
+         * @return Observable to send event.
+         */
+        Observable<ComapiResult<Void>> isTyping(@NonNull final String conversationId, final boolean isTyping);
     }
 
     /**

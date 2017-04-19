@@ -44,6 +44,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUpdateE
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingOffEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -182,6 +183,11 @@ public class SocketEventsTest {
             public void onParticipantIsTyping(ParticipantTypingEvent event) {
                 throw new RuntimeException();
             }
+
+            @Override
+            public void onParticipantTypingOff(ParticipantTypingOffEvent event) {
+                throw new RuntimeException();
+            }
         };
 
         profileListener = new IProfileListener() {
@@ -235,6 +241,8 @@ public class SocketEventsTest {
         dispatcher.onMessage(json);
         json = ResponseTestHelper.readFromFile(this, "is_typing.json");
         dispatcher.onMessage(json);
+        json = ResponseTestHelper.readFromFile(this, "typing_off.json");
+        dispatcher.onMessage(json);
 
         receiver.removeListener(messagingListener);
         receiver.removeListener(profileListener);
@@ -280,6 +288,17 @@ public class SocketEventsTest {
         assertNotNull(receiver.isTyping.getConversationId());
         assertNotNull(receiver.isTyping.getProfileId());
         assertNotNull(receiver.isTyping.toString());
+    }
+
+    @Test
+    public void dispatchIsNotTyping() throws IOException {
+        String json = ResponseTestHelper.readFromFile(this, "typing_off.json");
+        dispatcher.onMessage(json);
+        assertEquals(true, receiver.isNotTyping.getName().equals(ParticipantTypingOffEvent.TYPE));
+        assertNotNull(receiver.isNotTyping.getEventId());
+        assertNotNull(receiver.isNotTyping.getConversationId());
+        assertNotNull(receiver.isNotTyping.getProfileId());
+        assertNotNull(receiver.isNotTyping.toString());
     }
 
     @Test
@@ -433,6 +452,8 @@ public class SocketEventsTest {
 
         ParticipantTypingEvent isTyping;
 
+        ParticipantTypingOffEvent isNotTyping;
+
         /**
          * Recomended constructor.
          */
@@ -516,6 +537,12 @@ public class SocketEventsTest {
         public void onParticipantIsTyping(ParticipantTypingEvent event) {
             super.onParticipantIsTyping(event);
             isTyping = event;
+        }
+
+        @Override
+        public void onParticipantTypingOff(ParticipantTypingOffEvent event) {
+            super.onParticipantTypingOff(event);
+            isNotTyping = event;
         }
     }
 }

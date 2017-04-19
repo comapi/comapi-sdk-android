@@ -139,6 +139,10 @@ public interface RestApi {
     @POST("/apispaces/{apiSpaceId}/conversations/{conversationId}/typing")
     Observable<Response<Void>> isTyping(@Header("Authorization") String authorization, @Path("apiSpaceId") String apiSpaceId, @Path("conversationId") String conversationId);
 
+    @Headers({"Accept: application/json"})
+    @DELETE("/apispaces/{apiSpaceId}/conversations/{conversationId}/typing")
+    Observable<Response<Void>> isNotTyping(@Header("Authorization") String authorization, @Path("apiSpaceId") String apiSpaceId, @Path("conversationId") String conversationId);
+
     /*
      * participants
      */

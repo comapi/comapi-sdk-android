@@ -34,6 +34,7 @@ import com.comapi.internal.network.model.events.conversation.ConversationUpdateE
 import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
+import com.comapi.internal.network.model.events.conversation.ParticipantTypingOffEvent;
 import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
 import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
@@ -118,14 +119,31 @@ public class SocketEventDispatcher implements SocketMessageListener {
                         onProfileUpdate(parser.parse(event, ProfileUpdateEvent.class));
                     } else if (ParticipantTypingEvent.TYPE.equals(name)) {
                         onParticipantIsTyping(parser.parse(event, ParticipantTypingEvent.class));
+                    } else if (ParticipantTypingOffEvent.TYPE.equals(name)) {
+                        onParticipantTypingOff(parser.parse(event, ParticipantTypingOffEvent.class));
                     }
                 }
             }
         }
     }
 
+    /**
+     * Dispatch conversation participant is typing event.
+     *
+     * @param event Event to dispatch.
+     */
     private void onParticipantIsTyping(ParticipantTypingEvent event) {
         handler.post(() -> listener.onParticipantIsTyping(event));
+        log("Event published " + event.toString());
+    }
+
+    /**
+     * Dispatch conversation participant stopped typing event.
+     *
+     * @param event Event to dispatch.
+     */
+    private void onParticipantTypingOff(ParticipantTypingOffEvent event) {
+        handler.post(() -> listener.onParticipantTypingOff(event));
         log("Event published " + event.toString());
     }
 

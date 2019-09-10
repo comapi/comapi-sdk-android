@@ -45,6 +45,9 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.comapi.internal.receivers.NotificationClickReceiver"
+            android:exported="false"/>
+
         <!-- Service to handle Instance ID service token refresh notifications for FCM security. -->
         <service
             android:name="com.comapi.internal.push.IDService"

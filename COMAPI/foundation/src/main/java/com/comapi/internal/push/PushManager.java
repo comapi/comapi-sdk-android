@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.comapi.internal.log.Logger;
+import com.comapi.internal.network.InternalService;
 import com.comapi.internal.receivers.PushBroadcastReceiver;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -49,6 +50,8 @@ public class PushManager {
 
     private PushTokenProvider provider;
 
+    private LocalNotificationsManager lNM;
+
     /**
      * Initialise PushManager.
      *
@@ -62,6 +65,7 @@ public class PushManager {
     public void init(final Context context, final Handler mainThreadHandler, final Logger logger, final PushTokenProvider provider, final PushTokenListener tokenListener, final PushMessageListener messageListener) {
         log = logger;
         this.provider = provider != null ? provider : () -> FirebaseInstanceId.getInstance().getToken();
+        this.lNM = new LocalNotificationsManager(context, log);
         registerPushReceiver(mainThreadHandler, context, this.provider, tokenListener, messageListener);
     }
 
@@ -78,8 +82,9 @@ public class PushManager {
         IntentFilter filter = new IntentFilter();
         filter.addAction(IDService.ACTION_REFRESH_PUSH);
         filter.addAction(PushService.ACTION_PUSH_MESSAGE);
+        filter.addAction(PushDataKeys.PUSH_CLICK_ACTION);
 
-        receiver = new PushBroadcastReceiver(mainThreadHandler, provider, tokenListener, messageListener);
+        receiver = new PushBroadcastReceiver(mainThreadHandler, provider, tokenListener, messageListener, lNM, log);
         LocalBroadcastManager.getInstance(context.getApplicationContext()).registerReceiver(receiver, filter);
     }
 
@@ -120,5 +125,9 @@ public class PushManager {
             }
             return false;
         }
+    }
+
+    public void setService(InternalService service) {
+        lNM.setService(service);
     }
 }

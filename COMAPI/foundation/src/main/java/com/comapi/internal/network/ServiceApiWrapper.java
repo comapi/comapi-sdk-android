@@ -262,6 +262,18 @@ class ServiceApiWrapper extends ApiWrapper {
     }
 
     /**
+     * Sets statuses a push message.
+     *
+     * @param token          Comapi access token.
+     * @param messageId ID of a message.
+     * @param status  new status.
+     * @return Observable to modify message statuses.
+     */
+    Observable<ComapiResult<Void>> doUpdatePushMessageStatus(@NonNull final String token, @NonNull final String messageId, @NonNull final String status) {
+        return wrapObservable(service.updatePushMessageStatus(AuthManager.addAuthPrefix(token), apiSpaceId, messageId, status).map(mapToComapiResult()), log, "Updating message " + messageId + " to "+ status);
+    }
+
+    /**
      * Query events.  Use {@link #doQueryConversationEvents(String, String, Long, Integer)} for better visibility of possible events.
      *
      * @param token          Comapi access token.

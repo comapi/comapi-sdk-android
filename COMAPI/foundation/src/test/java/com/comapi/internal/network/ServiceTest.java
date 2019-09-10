@@ -94,7 +94,7 @@ import static org.robolectric.RuntimeEnvironment.application;
  * @since 1.0.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "foundation/src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
 public class ServiceTest {
 
     private MockWebServer server;

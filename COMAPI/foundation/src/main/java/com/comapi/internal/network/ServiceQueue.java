@@ -316,6 +316,16 @@ class ServiceQueue extends ServiceApiWrapper {
                     .doOnCompleted(this::executePending);
         }
 
+        Observable<ComapiResult<Void>> queueUpdatePushMessageStatus(String messageId, String status) {
+
+            return createNewTask()
+                    .flatMap((Func1<String, Observable<ComapiResult<Void>>>) token -> {
+                        log.d("doUpdatePushMessageStatus called from the service queue. " + queue.size() + " requests still pending.");
+                        return doUpdatePushMessageStatus(token, messageId, status);
+                    })
+                    .doOnCompleted(this::executePending);
+        }
+
         Observable<ComapiResult<EventsQueryResponse>> queueQueryEvents(String conversationId, Long from, Integer limit) {
 
             return createNewTask()

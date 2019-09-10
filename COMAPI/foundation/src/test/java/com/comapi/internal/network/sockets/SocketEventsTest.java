@@ -71,7 +71,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 1.0.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "com.comapi.appmessaging/src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
 public class SocketEventsTest {
 
     private SocketEventDispatcher dispatcher;

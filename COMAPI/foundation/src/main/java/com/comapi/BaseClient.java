@@ -126,12 +126,7 @@ public abstract class BaseClient<T> implements IClient<T> {
         if (state.compareAndSet(GlobalState.NOT_INITIALISED, GlobalState.INITIALISING)) {
 
             return init(application, adapter)
-                    .concatMap(new Func1<Boolean, Observable<SessionData>>() {
-                        @Override
-                        public Observable<SessionData> call(Boolean state) {
-                            return loadSession(state);
-                        }
-                    })
+                    .concatMap((Func1<Boolean, Observable<SessionData>>) this::loadSession)
                     .doOnNext(session -> log.d(session != null ? "Comapi initialised with session profile id : " + session.getProfileId() : "Comapi initialisation with no session."))
                     .doOnError(e -> {
                         if (log != null) {
@@ -144,12 +139,7 @@ public abstract class BaseClient<T> implements IClient<T> {
                                     .doOnNext(sessionComapiResultPair -> log.d("Push token updated"))
                                     .doOnError(throwable -> log.f("Error updating push token", throwable))
                                     .map((Func1<Pair<SessionData, ComapiResult<Void>>, Object>) resultPair -> resultPair.first)
-                                    .onErrorReturn(new Func1<Throwable, SessionData>() {
-                                        @Override
-                                        public SessionData call(Throwable throwable) {
-                                            return session;
-                                        }
-                                    });
+                                    .onErrorReturn((Func1<Throwable, SessionData>) throwable -> session);
                         }
                         return Observable.fromCallable(() -> session);
                     })
@@ -223,6 +213,8 @@ public abstract class BaseClient<T> implements IClient<T> {
                 SocketController socketController = service.initialiseSocketClient(sessionController, listenerListAdapter, baseURIs);
                 lifecycleListeners.add(socketController.createLifecycleListener());
                 initialiseLifecycleObserver(application);
+
+                pushMgr.setService(service);
 
                 sub.onNext(state.compareAndSet(GlobalState.INITIALISING, GlobalState.INITIALISED));
                 sub.onCompleted();

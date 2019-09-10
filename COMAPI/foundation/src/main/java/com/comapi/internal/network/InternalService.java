@@ -796,6 +796,26 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
     /**
      * Sets statuses for sets of messages.
      *
+     * @param messageId ID of a message.
+     * @param status  message status.
+     * @return Observable to modify message statuses.
+     */
+    public Observable<ComapiResult<Void>> updatePushMessageStatus(@NonNull final String messageId, @NonNull final String status) {
+
+        final String token = getToken();
+
+        if (sessionController.isCreatingSession()) {
+            return getTaskQueue().queueUpdatePushMessageStatus(messageId, status);
+        } else if (TextUtils.isEmpty(token)) {
+            return Observable.error(getSessionStateErrorDescription());
+        } else {
+            return doUpdatePushMessageStatus(token, messageId, status);
+        }
+    }
+
+    /**
+     * Sets statuses for sets of messages.
+     *
      * @param conversationId ID of a conversation to modify.
      * @param msgStatusList  List of status modifications.
      * @param callback       Callback to deliver new session instance.

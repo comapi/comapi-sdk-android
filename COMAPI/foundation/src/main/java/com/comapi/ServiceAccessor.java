@@ -20,8 +20,8 @@
 
 package com.comapi;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.comapi.internal.network.ComapiResult;
 import com.comapi.internal.network.ContentData;

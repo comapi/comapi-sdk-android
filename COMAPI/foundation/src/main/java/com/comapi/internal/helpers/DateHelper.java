@@ -20,7 +20,7 @@
 
 package com.comapi.internal.helpers;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.text.DateFormat;

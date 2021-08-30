@@ -24,14 +24,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.InternalService;
 import com.comapi.internal.receivers.PushBroadcastReceiver;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.android.gms.common.GoogleApiAvailabilityLight;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.messaging.FirebaseMessaging;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Manager for FCM functionality, obtaining push tokens and listens for messages.
@@ -64,7 +66,16 @@ public class PushManager {
      */
     public void init(final Context context, final Handler mainThreadHandler, final Logger logger, final PushTokenProvider provider, final PushTokenListener tokenListener, final PushMessageListener messageListener) {
         log = logger;
-        this.provider = provider != null ? provider : () -> FirebaseInstanceId.getInstance().getToken();
+        this.provider = provider != null ? provider : () -> {
+            try {
+                return Tasks.await(FirebaseMessaging.getInstance().getToken());
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        };
         this.lNM = new LocalNotificationsManager(context, log);
         registerPushReceiver(mainThreadHandler, context, this.provider, tokenListener, messageListener);
     }
@@ -113,12 +124,12 @@ public class PushManager {
      */
     boolean checkAvailablePush(Context context) {
 
-        int connectionStatus = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+        int connectionStatus = GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(context);
         if (connectionStatus == ConnectionResult.SUCCESS) {
             log.i("Google Play Services are available on this device.");
             return true;
         } else {
-            if (GoogleApiAvailability.getInstance().isUserResolvableError(connectionStatus)) {
+            if (GoogleApiAvailabilityLight.getInstance().isUserResolvableError(connectionStatus)) {
                 log.e("Google Play Services is probably not up to date. User recoverable Error Code is " + connectionStatus);
             } else {
                 log.e("This device is not supported by Google Play Services.");

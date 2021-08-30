@@ -22,7 +22,7 @@ package com.comapi;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.comapi.internal.CallbackAdapter;
 import com.comapi.internal.lifecycle.LifecycleListener;

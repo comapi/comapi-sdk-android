@@ -20,11 +20,10 @@
 
 package com.comapi.internal.network;
 
-import android.app.Application;
 import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 

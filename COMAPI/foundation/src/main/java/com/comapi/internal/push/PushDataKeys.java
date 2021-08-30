@@ -36,4 +36,8 @@ public class PushDataKeys {
 
     public static final String KEY_DEEP_LINK = "link";
     public static final String KEY_ACTION_ID = "id";
+
+    public static final String KEY_PUSH_CORRELATION_ID = "correlationId";
+    public static final String KEY_PUSH_TITLE = "title";
+    public static final String KEY_PUSH_BODY = "body";
 }

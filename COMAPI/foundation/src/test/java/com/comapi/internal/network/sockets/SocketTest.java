@@ -25,7 +25,7 @@ import android.app.Application;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.comapi.BuildConfig;
 import com.comapi.helpers.DataTestHelper;

@@ -53,7 +53,7 @@ public class LocalNotificationsManager {
 
         Context context = this.context.get();
         if (context != null) {
-            int id = builder.getMessageId().hashCode();
+            int id = builder.getCorrelationId().hashCode();
             Notification n = builder.buildNotification(context, channelData, uiConfig);
             NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -67,10 +67,10 @@ public class LocalNotificationsManager {
         }
     }
 
-    public void handleNotificationClick(String messageId, String id, String link) {
+    public void handleNotificationClick(String correlationId, String actionId, String link) {
         InternalService service = this.service.get();
         if (service != null) {
-            log.d("TODO: send `read messageId="+messageId);
+            log.d("TODO: send `read correlationId="+correlationId);
             //callObs(service.updatePushMessageStatus(messageId, "read"));
             //TODO send `read` for messageId
             if (link != null) {
@@ -86,10 +86,10 @@ public class LocalNotificationsManager {
                         log.e("Missing week context reference in LocalNotificationsManager.handleNotification");
                     }
                 } catch (Exception e) {
-                    log.f("Error creating deep link intent messageId="+messageId+" id="+id+" link="+link, e);
+                    log.f("Error creating deep link intent correlationId="+correlationId+" id="+actionId+" link="+link, e);
                 }
 
-                log.d("TODO: send `click` messageId="+messageId+" id="+id+" link="+link);
+                log.d("TODO: send `click` correlationId="+correlationId+" id="+actionId+" link="+link);
                 //TODO send `click` for link+id
             }
         }

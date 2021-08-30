@@ -37,12 +37,12 @@ public class NotificationClickReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         if (PushDataKeys.PUSH_CLICK_ACTION.equals(intent.getAction())) {
-            String link = intent.getStringExtra(PushDataKeys.KEY_DEEP_LINK);
+            String link = intent.getStringExtra(PushDataKeys.KEY_PUSH_DEEP_LINK);
             if (link != null) {
                 Intent i = new Intent(PushDataKeys.PUSH_CLICK_ACTION);
-                i.putExtra(PushDataKeys.KEY_ACTION_ID, intent.getStringExtra(PushDataKeys.KEY_ACTION_ID));
-                i.putExtra(PushDataKeys.KEY_PUSH_MESSAGE_ID, intent.getStringExtra(PushDataKeys.KEY_PUSH_MESSAGE_ID));
-                i.putExtra(PushDataKeys.KEY_DEEP_LINK, link);
+                i.putExtra(PushDataKeys.KEY_PUSH_ACTION_ID, intent.getStringExtra(PushDataKeys.KEY_PUSH_ACTION_ID));
+                i.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, intent.getStringExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID));
+                i.putExtra(PushDataKeys.KEY_PUSH_DEEP_LINK, link);
                 LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
             }
         }

@@ -29,12 +29,14 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Helper to obtain basic device information.
@@ -79,9 +81,13 @@ public class DeviceHelper {
 
         if (TextUtils.isEmpty(deviceId)) {
             try {
-                deviceId = FirebaseInstanceId.getInstance().getId();
+                deviceId = Tasks.await(FirebaseInstallations.getInstance().getId());
             } catch (IllegalStateException e) {
                 //Continue.
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
             }
         }
 

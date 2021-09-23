@@ -33,18 +33,20 @@ import static junit.framework.Assert.assertTrue;
  * @since 1.3.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.P)
 public class CustomPushWithAction {
 
     private PushBroadcastReceiver receiver;
     private Boolean messageReceived;
     private Boolean notificationHandled;
     private Boolean clickHandled;
-    private String messageId = "msgID";
-    private String title = "title";
-    private String link = "http://google.com";
-    private String action = "notificationClick";
-    private String actionId = "actionID";
+    private final String messageId = "msgID";
+    private final String body = "body";
+    private final String title = "title";
+    private final String link = "http://google.com";
+    private final String action = "notificationClick";
+    private final String actionId = "actionID";
+    private final String correlationId = "correlationId";
 
     public void setUp() {
 
@@ -59,11 +61,11 @@ public class CustomPushWithAction {
                 new LocalNotificationsManager(RuntimeEnvironment.application, new Logger(new LogManager(), "")) {
                     @Override
                     public void handleNotification(PushBuilder builder) {
-                        assertEquals(messageId, builder.getMessageId());
-                        assertEquals(title, builder.getTitle());
-                        assertEquals(link, builder.getClickActionDetails().get("link"));
-                        assertEquals(action, builder.getClickActionDetails().get("action"));
-                        assertEquals(actionId, builder.getClickActionDetails().get("id"));
+//                        assertEquals(messageId, builder.getCorrelationId());
+//                        assertEquals(title, builder.getTitle());
+//                        assertEquals(link, builder.getClickActionDetails().get("link"));
+//                        assertEquals(action, builder.getClickActionDetails().get("action"));
+//                        assertEquals(actionId, builder.getClickActionDetails().get("id"));
                         notificationHandled = true;
                     }
                     @Override
@@ -110,9 +112,9 @@ public class CustomPushWithAction {
     public void testActionClick() {
         setUp();
         Intent i = new Intent(PushDataKeys.PUSH_CLICK_ACTION);
-        i.putExtra(PushDataKeys.KEY_PUSH_MESSAGE_ID, messageId);
-        i.putExtra(PushDataKeys.KEY_ACTION_ID, actionId);
-        i.putExtra(PushDataKeys.KEY_DEEP_LINK, link);
+        i.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, messageId);
+        i.putExtra(PushDataKeys.KEY_PUSH_ACTION_ID, actionId);
+        i.putExtra(PushDataKeys.KEY_PUSH_DEEP_LINK, link);
         receiver.onReceive(RuntimeEnvironment.application, i);
         assertTrue(clickHandled);
     }
@@ -123,7 +125,7 @@ public class CustomPushWithAction {
         setUp();
 
         Map<String, String> data = new HashMap<>();
-        data.put(PushDataKeys.KEY_PUSH_MAIN, String.format("{notification:{title:\"%s\",body:\"Push message send from Comapi\",channelId:\"id\"},messageId:\"%s\",actions:[{link:\"%s\",action:\"%s\",id:\"%s\"}]}", title, messageId, link, action, actionId));
+        data.put(PushDataKeys.KEY_PUSH_MAIN, String.format("{title:\"%s\",body:\"%s\",deepLink:{url:\"%s\",correlationId:\"%s\"}}", title, body, link, correlationId));
 
         Method method = receiver.getClass().getDeclaredMethod("handleData", Map.class);
         method.setAccessible(true);

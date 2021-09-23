@@ -8,7 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import android.text.Html;
 import android.text.TextUtils;
 
@@ -24,16 +24,16 @@ import java.util.Random;
 public
 class PushBuilder {
 
-    private String messageId;
-    private String title;
-    private String body;
-    private Map<String, String> clickActionDetails;
+    private final String correlationId;
+    private final String title;
+    private final String body;
+    private final String url;
 
-    public PushBuilder(String messageId, Map<String, String> details, Map<String, String> clickAction) {
-        this.messageId = messageId;
-        title = details.get("title");
-        body = details.get("body");
-        this.clickActionDetails = clickAction;
+    public PushBuilder(String correlationId, String title, String body, String url) {
+        this.correlationId = correlationId;
+        this.title = title;
+        this.body = body;
+        this.url = url;
     }
 
     private void setupChannel(Context context, ChannelData channelData) {
@@ -93,9 +93,9 @@ class PushBuilder {
         Intent intent = new Intent(context, NotificationClickReceiver.class);
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.setAction(PushDataKeys.PUSH_CLICK_ACTION);
-        intent.putExtra(PushDataKeys.KEY_DEEP_LINK, clickActionDetails.get(PushDataKeys.KEY_DEEP_LINK));
-        intent.putExtra(PushDataKeys.KEY_ACTION_ID, clickActionDetails.get(PushDataKeys.KEY_ACTION_ID));
-        intent.putExtra(PushDataKeys.KEY_PUSH_MESSAGE_ID, messageId);
+        intent.putExtra(PushDataKeys.KEY_PUSH_DEEP_LINK, url);
+        intent.putExtra(PushDataKeys.KEY_PUSH_ACTION_ID, "TODO");
+        intent.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, correlationId);
         int pendingIntentId = Math.abs(new Random().nextInt(Integer.MAX_VALUE));
         return PendingIntent.getBroadcast(context, pendingIntentId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
@@ -116,8 +116,8 @@ class PushBuilder {
 
     }
 
-    public String getMessageId() {
-        return messageId;
+    public String getCorrelationId() {
+        return correlationId;
     }
 
     public String getTitle() {
@@ -129,6 +129,6 @@ class PushBuilder {
     }
 
     public Map<String, String> getClickActionDetails() {
-        return clickActionDetails;
+        return null;
     }
 }

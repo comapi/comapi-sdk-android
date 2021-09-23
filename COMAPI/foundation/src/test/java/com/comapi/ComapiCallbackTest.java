@@ -25,9 +25,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.comapi.helpers.DataTestHelper;
 import com.comapi.helpers.MockCallback;
@@ -78,7 +78,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 1.0.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.P)
 public class ComapiCallbackTest {
 
     private static final long TIME_OUT = 10000;

@@ -77,7 +77,7 @@ public class PushBroadcastReceiver extends BroadcastReceiver {
                 dispatchMessage(messageListener, msg);
             }
         } else if (PushDataKeys.PUSH_CLICK_ACTION.equals(intent.getAction())) {
-            lNM.handleNotificationClick(intent.getStringExtra(PushDataKeys.KEY_PUSH_MESSAGE_ID), intent.getStringExtra(PushDataKeys.KEY_ACTION_ID), intent.getStringExtra(PushDataKeys.KEY_DEEP_LINK));
+            lNM.handleNotificationClick(intent.getStringExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID), intent.getStringExtra(PushDataKeys.KEY_PUSH_ACTION_ID), intent.getStringExtra(PushDataKeys.KEY_PUSH_DEEP_LINK));
         }
     }
 
@@ -89,21 +89,14 @@ public class PushBroadcastReceiver extends BroadcastReceiver {
                 try {
                     @SuppressWarnings("unchecked")
                     Map<String, ArrayList<Map>> params = parser.parse(dd, Map.class);
-                    String messageId = String.valueOf(params.get(PushDataKeys.KEY_PUSH_MESSAGE_ID));
+                    String title = String.valueOf(params.get(PushDataKeys.KEY_PUSH_TITLE));
+                    String body = String.valueOf(params.get(PushDataKeys.KEY_PUSH_BODY));
                     @SuppressWarnings("unchecked")
-                    Map<String, String> notificationDetails = (Map<String, String>) params.get(PushDataKeys.KEY_PUSH_NOTIFICATION);
-                    if (notificationDetails != null && !notificationDetails.isEmpty()) {
-                        ArrayList<Map> listActionMaps = params.get(PushDataKeys.KEY_PUSH_ACTIONS);
-                        if (listActionMaps != null && !listActionMaps.isEmpty()) {
-                            for (@SuppressWarnings("unchecked") Map<String, String> action : listActionMaps) {
-                                if (PushDataKeys.PUSH_CLICK_ACTION.equals(action.get(PushDataKeys.KEY_PUSH_ACTION))) {
-                                    lNM.handleNotification(new PushBuilder(messageId, notificationDetails, action));
-                                    return;
-                                }
-                            }
-                        }
-                        lNM.handleNotification(new PushBuilder(messageId, notificationDetails, null));
-                    }
+                    Map<String, ArrayList<Map>> deepLink = (Map<String, ArrayList<Map>>) params.get(PushDataKeys.KEY_PUSH_DEEP_LINK);
+                    String correlationId = String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_CORRELATION_ID));
+                    String actionId = String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_ACTION_ID));
+                    String url = String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_URL));
+                    lNM.handleNotification(new PushBuilder(correlationId, title, body, url));
                 } catch (Exception e) {
                     log.e("Error when parsing push message. "+e.getLocalizedMessage());
                 }

@@ -20,7 +20,7 @@
 
 package com.comapi.internal.network.model.events.conversation;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 

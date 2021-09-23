@@ -29,7 +29,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.comapi.helpers.DataTestHelper;
@@ -88,7 +88,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 1.0.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.P)
 public class ComapiClientTest {
 
     private MockWebServer server;

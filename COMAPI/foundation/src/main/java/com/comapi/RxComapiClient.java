@@ -22,7 +22,7 @@ package com.comapi;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.comapi.internal.CallbackAdapter;
 import com.comapi.internal.lifecycle.LifecycleListener;
@@ -93,7 +93,7 @@ public class RxComapiClient extends BaseClient<RxServiceAccessor> {
     /**
      * Gets the content of internal log files.
      *
-     * @deprecated Use safer version - {@link this#copyLogs(File)} instead.
+     * @deprecated Use safer version - {@link RxComapiClient#copyLogs(File)} instead.
      */
     @Override
     @Deprecated

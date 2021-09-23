@@ -20,7 +20,7 @@
 
 package com.comapi.internal.network;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.comapi.internal.Parser;
 import com.google.gson.annotations.SerializedName;

@@ -20,7 +20,7 @@
 
 package com.comapi.internal.network.model.conversation;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 

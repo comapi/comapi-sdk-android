@@ -89,7 +89,7 @@ public class ComapiClient extends BaseClient<ServiceAccessor> {
     /**
      * Gets the content of internal log files.
      *
-     * @deprecated Use safer version - {@link this#copyLogs(File)} instead.
+     * @deprecated Use safer version - {@link ComapiClient#copyLogs(File)} instead.
      */
     @Deprecated
     public void getLogs(Callback<String> callback) {

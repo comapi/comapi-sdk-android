@@ -93,7 +93,7 @@ public class RxComapiClient extends BaseClient<RxServiceAccessor> {
     /**
      * Gets the content of internal log files.
      *
-     * @deprecated Use safer version - {@link this#copyLogs(File)} instead.
+     * @deprecated Use safer version - {@link RxComapiClient#copyLogs(File)} instead.
      */
     @Override
     @Deprecated

@@ -73,7 +73,7 @@ import static org.robolectric.RuntimeEnvironment.application;
  * @since 1.0.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.P)
 public class SessionControllerTest {
 
     private MockWebServer server;

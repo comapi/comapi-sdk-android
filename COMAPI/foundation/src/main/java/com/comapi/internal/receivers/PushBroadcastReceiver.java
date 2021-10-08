@@ -36,7 +36,9 @@ import com.comapi.internal.push.PushService;
 import com.comapi.internal.push.PushTokenListener;
 import com.comapi.internal.push.PushTokenProvider;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.internal.LinkedTreeMap;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,26 +79,30 @@ public class PushBroadcastReceiver extends BroadcastReceiver {
                 dispatchMessage(messageListener, msg);
             }
         } else if (PushDataKeys.PUSH_CLICK_ACTION.equals(intent.getAction())) {
-            lNM.handleNotificationClick(intent.getStringExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID), intent.getStringExtra(PushDataKeys.KEY_PUSH_ACTION_ID), intent.getStringExtra(PushDataKeys.KEY_PUSH_DEEP_LINK));
+            Serializable data = intent.getSerializableExtra(PushDataKeys.KEY_PUSH_DATA);
+            lNM.handleNotificationClick(intent.getStringExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID), data, intent.getStringExtra(PushDataKeys.KEY_PUSH_DEEP_LINK));
         }
     }
 
-    private void handleData(Map<String, String> data) {
+    @SuppressWarnings("unchecked")
+    private void handleData(HashMap<String, String> data) {
         if (data != null) {
             String dd = data.get(PushDataKeys.KEY_PUSH_MAIN);
             if (dd != null) {
                 Parser parser = new Parser();
                 try {
-                    @SuppressWarnings("unchecked")
-                    Map<String, ArrayList<Map>> params = parser.parse(dd, Map.class);
+                    LinkedTreeMap<String, ?> params = parser.parse(dd, LinkedTreeMap.class);
                     String title = String.valueOf(params.get(PushDataKeys.KEY_PUSH_TITLE));
                     String body = String.valueOf(params.get(PushDataKeys.KEY_PUSH_BODY));
-                    @SuppressWarnings("unchecked")
-                    Map<String, ArrayList<Map>> deepLink = (Map<String, ArrayList<Map>>) params.get(PushDataKeys.KEY_PUSH_DEEP_LINK);
-                    String correlationId = String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_CORRELATION_ID));
-                    String actionId = String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_ACTION_ID));
-                    String url = String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_URL));
-                    lNM.handleNotification(new PushBuilder(correlationId, title, body, url));
+                    String url = null, correlationId = null;
+                    if (params.containsKey(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
+                        LinkedTreeMap<String, ?> deepLink = (LinkedTreeMap<String, ?>) params.get(PushDataKeys.KEY_PUSH_DEEP_LINK);
+                        if (deepLink != null) {
+                            url = deepLink.containsKey(PushDataKeys.KEY_PUSH_URL) ? String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_URL)) : null;
+                            correlationId = deepLink.containsKey(PushDataKeys.KEY_PUSH_CORRELATION_ID) ? String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_CORRELATION_ID)) : null;
+                        }
+                    }
+                    lNM.handleNotification(new PushBuilder(correlationId, title, body, url, data));
                 } catch (Exception e) {
                     log.e("Error when parsing push message. "+e.getLocalizedMessage());
                 }

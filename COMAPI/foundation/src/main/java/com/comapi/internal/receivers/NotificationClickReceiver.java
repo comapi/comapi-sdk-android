@@ -27,6 +27,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.comapi.internal.push.PushDataKeys;
 
+import java.io.Serializable;
+
 /**
  * @author Marcin Swierczek
  * @since 1.4.0
@@ -40,8 +42,14 @@ public class NotificationClickReceiver extends BroadcastReceiver {
             String link = intent.getStringExtra(PushDataKeys.KEY_PUSH_DEEP_LINK);
             if (link != null) {
                 Intent i = new Intent(PushDataKeys.PUSH_CLICK_ACTION);
-                i.putExtra(PushDataKeys.KEY_PUSH_ACTION_ID, intent.getStringExtra(PushDataKeys.KEY_PUSH_ACTION_ID));
-                i.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, intent.getStringExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID));
+                Serializable data = intent.getSerializableExtra(PushDataKeys.KEY_PUSH_DATA);
+                if (data != null) {
+                    i.putExtra(PushDataKeys.KEY_PUSH_DATA, data);
+                }
+                String correlationId = intent.getStringExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID);
+                if (correlationId != null) {
+                    i.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, correlationId);
+                }
                 i.putExtra(PushDataKeys.KEY_PUSH_DEEP_LINK, link);
                 LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
             }

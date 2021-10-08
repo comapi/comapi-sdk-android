@@ -8,12 +8,21 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 
+import androidx.annotation.Nullable;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.comapi.R;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.InternalService;
+import com.google.gson.internal.LinkedTreeMap;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -44,16 +53,20 @@ public class LocalNotificationsManager {
 
     public void handleNotification(PushBuilder builder) {
 
-        InternalService service = this.service.get();
-        if (service != null) {
-            log.d("TODO: send `delivered`");
-            //callObs(service.updatePushMessageStatus(builder.getMessageId(), "delivered"));
-            //TODO send `delivered` for messageId
-        }
+        /*
+            TODO:
+            try {
+                InternalService service = this.service.get();
+                callObs(service.updatePushMessageStatus(builder.getMessageId(), "delivered"));
+            } catch (Exception e) {
+                log.i("Service not set.");
+            }
+        */
 
         Context context = this.context.get();
         if (context != null) {
-            int id = builder.getCorrelationId().hashCode();
+            String correlationId = builder.getCorrelationId();
+            int id = UUID.randomUUID().hashCode();
             Notification n = builder.buildNotification(context, channelData, uiConfig);
             NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -67,16 +80,13 @@ public class LocalNotificationsManager {
         }
     }
 
-    public void handleNotificationClick(String correlationId, String actionId, String link) {
+    public void handleNotificationClick(String correlationId, Serializable data, String link) {
         InternalService service = this.service.get();
         if (service != null) {
-            log.d("TODO: send `read correlationId="+correlationId);
             //callObs(service.updatePushMessageStatus(messageId, "read"));
-            //TODO send `read` for messageId
             if (link != null) {
-
                 try {
-                    Intent intent = createDeepLinkIntent(link);
+                    Intent intent = createDeepLinkIntent(correlationId, data, link);
                     Context context = this.context.get();
                     if (context != null) {
                         if (isActivityAvailable(context, intent)) {
@@ -86,17 +96,14 @@ public class LocalNotificationsManager {
                         log.e("Missing week context reference in LocalNotificationsManager.handleNotification");
                     }
                 } catch (Exception e) {
-                    log.f("Error creating deep link intent correlationId="+correlationId+" id="+actionId+" link="+link, e);
+                    log.f("Error creating deep link intent correlationId="+correlationId+" link="+link, e);
                 }
-
-                log.d("TODO: send `click` correlationId="+correlationId+" id="+actionId+" link="+link);
-                //TODO send `click` for link+id
             }
         }
     }
 
     public void setService(InternalService service) {
-        this.service = new WeakReference<>(service);
+        this.service = new WeakReference<InternalService>(service);
     }
 
     private <T> void callObs(Observable<T> o) {
@@ -117,20 +124,24 @@ public class LocalNotificationsManager {
                 });
     }
 
-    private Intent createDeepLinkIntent(String link) {
+    private Intent createDeepLinkIntent(String correlationId, Serializable data, String link) {
         Intent intent = new Intent();
         intent.setData(Uri.parse(link));
         intent.setAction(Intent.ACTION_VIEW);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (data != null) {
+            intent.putExtra(PushDataKeys.KEY_PUSH_DATA, data);
+        }
+        if (correlationId != null) {
+            intent.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, correlationId);
+        }
         return intent;
     }
 
     private boolean isActivityAvailable(Context context, Intent intent) {
             final PackageManager mgr = context.getApplicationContext().getPackageManager();
-            List<ResolveInfo> list =
-                    mgr.queryIntentActivities(intent,
-                            PackageManager.MATCH_DEFAULT_ONLY);
+            List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
             return list.size() > 0;
     }
 }

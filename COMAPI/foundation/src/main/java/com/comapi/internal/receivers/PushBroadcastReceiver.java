@@ -87,21 +87,15 @@ public class PushBroadcastReceiver extends BroadcastReceiver {
     @SuppressWarnings("unchecked")
     private void handleData(HashMap<String, String> data) {
         if (data != null) {
-            String dd = data.get(PushDataKeys.KEY_PUSH_MAIN);
+            String dd = data.get(PushDataKeys.KEY_PUSH_DEEP_LINK);
             if (dd != null) {
                 Parser parser = new Parser();
                 try {
                     LinkedTreeMap<String, ?> params = parser.parse(dd, LinkedTreeMap.class);
                     String title = String.valueOf(params.get(PushDataKeys.KEY_PUSH_TITLE));
                     String body = String.valueOf(params.get(PushDataKeys.KEY_PUSH_BODY));
-                    String url = null, correlationId = null;
-                    if (params.containsKey(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
-                        LinkedTreeMap<String, ?> deepLink = (LinkedTreeMap<String, ?>) params.get(PushDataKeys.KEY_PUSH_DEEP_LINK);
-                        if (deepLink != null) {
-                            url = deepLink.containsKey(PushDataKeys.KEY_PUSH_URL) ? String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_URL)) : null;
-                            correlationId = deepLink.containsKey(PushDataKeys.KEY_PUSH_CORRELATION_ID) ? String.valueOf(deepLink.get(PushDataKeys.KEY_PUSH_CORRELATION_ID)) : null;
-                        }
-                    }
+                    String url = String.valueOf(params.get(PushDataKeys.KEY_PUSH_URL));
+                    String correlationId = String.valueOf(params.get(PushDataKeys.KEY_PUSH_CORRELATION_ID));
                     lNM.handleNotification(new PushBuilder(correlationId, title, body, url, data));
                 } catch (Exception e) {
                     log.e("Error when parsing push message. "+e.getLocalizedMessage());

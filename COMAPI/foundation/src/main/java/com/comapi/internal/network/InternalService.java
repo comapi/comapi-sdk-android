@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import retrofit2.Response;
 import rx.Observable;
 
 /**
@@ -1015,6 +1016,10 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
     @Override
     public void createFbOptInState(Callback<ComapiResult<String>> callback) {
         adapter.adapt(createFbOptInState(), callback);
+    }
+
+    public Observable<Boolean> sendClickData(String correlationUrl) {
+        return service.click(correlationUrl).map(Response::isSuccessful);
     }
 
     /**

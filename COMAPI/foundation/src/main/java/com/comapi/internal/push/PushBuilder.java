@@ -16,9 +16,7 @@ import android.text.Html;
 import android.text.TextUtils;
 
 import com.comapi.internal.receivers.NotificationClickReceiver;
-import com.google.gson.internal.LinkedTreeMap;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -30,17 +28,17 @@ import java.util.Random;
 public
 class PushBuilder {
 
-    private final String correlationId;
+    private final String trackingUrl;
     private final String title;
     private final String body;
     private final String url;
     private final HashMap<String, String> data;
 
-    public PushBuilder(@Nullable String correlationId, String title, String body, @Nullable String url, @Nullable HashMap<String, String> data) {
-        this.correlationId = correlationId;
+    public PushBuilder(String title, String body, String url, @Nullable String trackingUrl, @Nullable HashMap<String, String> data) {
         this.title = title;
         this.body = body;
         this.url = url;
+        this.trackingUrl = trackingUrl;
         this.data = data;
     }
 
@@ -106,8 +104,8 @@ class PushBuilder {
         if (url != null) {
             intent.putExtra(PushDataKeys.KEY_PUSH_DEEP_LINK, url);
         }
-        if (correlationId != null) {
-            intent.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, correlationId);
+        if (trackingUrl != null) {
+            intent.putExtra(PushDataKeys.KEY_PUSH_TRACKING_URL, trackingUrl);
         }
         if (data != null) {
             intent.putExtra(PushDataKeys.KEY_PUSH_DATA, data);
@@ -132,8 +130,8 @@ class PushBuilder {
 
     }
 
-    public String getCorrelationId() {
-        return correlationId;
+    public String getTrackingUrl() {
+        return trackingUrl;
     }
 
     public String getTitle() {

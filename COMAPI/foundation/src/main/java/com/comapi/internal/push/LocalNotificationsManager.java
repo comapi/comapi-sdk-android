@@ -8,20 +8,14 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 
-import androidx.annotation.Nullable;
-
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.comapi.R;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.InternalService;
-import com.google.gson.internal.LinkedTreeMap;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import rx.Observable;
@@ -53,19 +47,8 @@ public class LocalNotificationsManager {
 
     public void handleNotification(PushBuilder builder) {
 
-        /*
-            TODO:
-            try {
-                InternalService service = this.service.get();
-                callObs(service.updatePushMessageStatus(builder.getMessageId(), "delivered"));
-            } catch (Exception e) {
-                log.i("Service not set.");
-            }
-        */
-
         Context context = this.context.get();
         if (context != null) {
-            String correlationId = builder.getCorrelationId();
             int id = UUID.randomUUID().hashCode();
             Notification n = builder.buildNotification(context, channelData, uiConfig);
             NotificationManager notificationManager =
@@ -80,25 +63,28 @@ public class LocalNotificationsManager {
         }
     }
 
-    public void handleNotificationClick(String correlationId, Serializable data, String link) {
+    public void handleNotificationClick(String trackingUrl, Serializable data, String link) {
+        if (link != null) {
+            try {
+                Intent intent = createDeepLinkIntent(trackingUrl, data, link);
+                Context context = this.context.get();
+                if (context != null) {
+                    if (isActivityAvailable(context, intent)) {
+                        context.getApplicationContext().startActivity(intent);
+                    }
+                } else {
+                    log.e("Missing week context reference in LocalNotificationsManager.handleNotification");
+                }
+            } catch (Exception e) {
+                log.f("Error creating deep link intent trackingUrl="+trackingUrl+" link="+link, e);
+            }
+        }
+
         InternalService service = this.service.get();
         if (service != null) {
-            //callObs(service.updatePushMessageStatus(messageId, "read"));
-            if (link != null) {
-                try {
-                    Intent intent = createDeepLinkIntent(correlationId, data, link);
-                    Context context = this.context.get();
-                    if (context != null) {
-                        if (isActivityAvailable(context, intent)) {
-                            context.getApplicationContext().startActivity(intent);
-                        }
-                    } else {
-                        log.e("Missing week context reference in LocalNotificationsManager.handleNotification");
-                    }
-                } catch (Exception e) {
-                    log.f("Error creating deep link intent correlationId="+correlationId+" link="+link, e);
-                }
-            }
+            callObs(service.sendClickData(trackingUrl));
+        } else {
+            log.e("Missing week reference to InternalService in LocalNotificationsManager.handleNotification");
         }
     }
 
@@ -124,7 +110,7 @@ public class LocalNotificationsManager {
                 });
     }
 
-    private Intent createDeepLinkIntent(String correlationId, Serializable data, String link) {
+    private Intent createDeepLinkIntent(String trackingUrl, Serializable data, String link) {
         Intent intent = new Intent();
         intent.setData(Uri.parse(link));
         intent.setAction(Intent.ACTION_VIEW);
@@ -133,8 +119,8 @@ public class LocalNotificationsManager {
         if (data != null) {
             intent.putExtra(PushDataKeys.KEY_PUSH_DATA, data);
         }
-        if (correlationId != null) {
-            intent.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, correlationId);
+        if (trackingUrl != null) {
+            intent.putExtra(PushDataKeys.KEY_PUSH_TRACKING_URL, trackingUrl);
         }
         return intent;
     }

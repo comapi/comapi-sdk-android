@@ -46,9 +46,9 @@ public class NotificationClickReceiver extends BroadcastReceiver {
                 if (data != null) {
                     i.putExtra(PushDataKeys.KEY_PUSH_DATA, data);
                 }
-                String correlationId = intent.getStringExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID);
-                if (correlationId != null) {
-                    i.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, correlationId);
+                String trackingUrl = intent.getStringExtra(PushDataKeys.KEY_PUSH_TRACKING_URL);
+                if (trackingUrl != null) {
+                    i.putExtra(PushDataKeys.KEY_PUSH_TRACKING_URL, trackingUrl);
                 }
                 i.putExtra(PushDataKeys.KEY_PUSH_DEEP_LINK, link);
                 LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);

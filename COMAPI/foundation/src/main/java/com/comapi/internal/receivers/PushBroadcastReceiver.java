@@ -80,25 +80,31 @@ public class PushBroadcastReceiver extends BroadcastReceiver {
             }
         } else if (PushDataKeys.PUSH_CLICK_ACTION.equals(intent.getAction())) {
             Serializable data = intent.getSerializableExtra(PushDataKeys.KEY_PUSH_DATA);
-            lNM.handleNotificationClick(intent.getStringExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID), data, intent.getStringExtra(PushDataKeys.KEY_PUSH_DEEP_LINK));
+            lNM.handleNotificationClick(intent.getStringExtra(PushDataKeys.KEY_PUSH_TRACKING_URL), data, intent.getStringExtra(PushDataKeys.KEY_PUSH_DEEP_LINK));
         }
     }
 
     @SuppressWarnings("unchecked")
     private void handleData(HashMap<String, String> data) {
         if (data != null) {
-            String dd = data.get(PushDataKeys.KEY_PUSH_DEEP_LINK);
-            if (dd != null) {
-                Parser parser = new Parser();
+            String ddDeepLink = data.get(PushDataKeys.KEY_PUSH_DEEP_LINK);
+            if (ddDeepLink != null) {
+                String deepLinkUrl = null;
+                String trackingUrl = null;
+                String title = String.valueOf(data.get(PushDataKeys.KEY_PUSH_TITLE));
+                String body = String.valueOf(data.get(PushDataKeys.KEY_PUSH_BODY));
+                LinkedTreeMap<String, ?> ddDeepLinkMap;
                 try {
-                    LinkedTreeMap<String, ?> params = parser.parse(dd, LinkedTreeMap.class);
-                    String title = String.valueOf(params.get(PushDataKeys.KEY_PUSH_TITLE));
-                    String body = String.valueOf(params.get(PushDataKeys.KEY_PUSH_BODY));
-                    String url = String.valueOf(params.get(PushDataKeys.KEY_PUSH_URL));
-                    String correlationId = String.valueOf(params.get(PushDataKeys.KEY_PUSH_CORRELATION_ID));
-                    lNM.handleNotification(new PushBuilder(correlationId, title, body, url, data));
+                    ddDeepLinkMap = (new Parser()).parse(ddDeepLink, LinkedTreeMap.class);
+                    deepLinkUrl = String.valueOf(ddDeepLinkMap.get(PushDataKeys.KEY_PUSH_URL));
+                    trackingUrl = String.valueOf(ddDeepLinkMap.get(PushDataKeys.KEY_PUSH_TRACKING_URL));
                 } catch (Exception e) {
-                    log.e("Error when parsing push message. "+e.getLocalizedMessage());
+                    log.e("Error when parsing push message deep link data. "+e.getLocalizedMessage());
+                }
+                if (!title.trim().isEmpty() && !body.trim().isEmpty() && deepLinkUrl != null && !deepLinkUrl.trim().isEmpty() ) {
+                    lNM.handleNotification(new PushBuilder(title, body, deepLinkUrl, trackingUrl, data));
+                } else {
+                    log.e("Missing data in push message.");
                 }
             }
         }

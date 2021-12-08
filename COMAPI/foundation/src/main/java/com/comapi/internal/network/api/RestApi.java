@@ -213,5 +213,5 @@ public interface RestApi {
      */
     @Headers({"Accept: application/json"})
     @GET
-    Observable<Response<Void>> click(@Url String url);
+    Observable<Response<Void>> click(@Url String url, @Query("platform") String platform);
 }

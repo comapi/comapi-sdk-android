@@ -40,6 +40,7 @@ import com.comapi.internal.ListenerListAdapter;
 import com.comapi.internal.data.DataManager;
 import com.comapi.internal.data.SessionData;
 import com.comapi.internal.helpers.APIHelper;
+import com.comapi.internal.helpers.DeviceHelper;
 import com.comapi.internal.log.LogLevel;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.api.ComapiService;
@@ -1019,7 +1020,7 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
     }
 
     public Observable<Boolean> sendClickData(String correlationUrl) {
-        return service.click(correlationUrl).map(Response::isSuccessful);
+        return service.click(correlationUrl, DeviceHelper.PLATFORM).map(Response::isSuccessful);
     }
 
     /**

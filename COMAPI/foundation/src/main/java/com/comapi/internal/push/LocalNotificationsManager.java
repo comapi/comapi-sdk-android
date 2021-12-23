@@ -64,6 +64,16 @@ public class LocalNotificationsManager {
     }
 
     public void handleNotificationClick(String trackingUrl, Serializable data, String link) {
+
+        if (trackingUrl != null) {
+            InternalService service = this.service.get();
+            if (service != null) {
+                callObs(service.sendClickData(trackingUrl));
+            } else {
+                log.e("Missing week reference to InternalService in LocalNotificationsManager.handleNotification");
+            }
+        }
+
         if (link != null) {
             try {
                 Intent intent = createDeepLinkIntent(trackingUrl, data, link);
@@ -78,13 +88,6 @@ public class LocalNotificationsManager {
             } catch (Exception e) {
                 log.f("Error creating deep link intent trackingUrl="+trackingUrl+" link="+link, e);
             }
-        }
-
-        InternalService service = this.service.get();
-        if (service != null) {
-            callObs(service.sendClickData(trackingUrl));
-        } else {
-            log.e("Missing week reference to InternalService in LocalNotificationsManager.handleNotification");
         }
     }
 

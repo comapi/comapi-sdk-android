@@ -203,26 +203,7 @@ public class SessionController extends ApiWrapper {
                             stateListener.onSessionStart(new Session(session));
                         }
                     })
-                    .doOnError(throwable -> state.compareAndSet(GlobalState.SESSION_STARTING, GlobalState.SESSION_OFF))
-                    .concatMap(session ->
-                    {
-                        if (isFcmEnabled) {
-                            return updatePushToken(session)
-                                    .doOnNext(pushUpdateResult -> {
-                                        if (pushUpdateResult.second == null) {
-                                            log.e("Failed to update push token on the server.");
-                                        } else if (!pushUpdateResult.second.isSuccessful()) {
-                                            log.e("Failed to update push token on the server. " + pushUpdateResult.second.message());
-                                        } else {
-                                            log.i("Push token updated on the server.");
-                                        }
-                                    })
-                                    .doOnError(throwable -> log.f("Failed to update push token on the server.", throwable))
-                                    .map(sessionResultPair -> sessionResultPair.first);
-                        } else {
-                            return Observable.fromCallable(() -> session);
-                        }
-                    });
+                    .doOnError(throwable -> state.compareAndSet(GlobalState.SESSION_STARTING, GlobalState.SESSION_OFF));
         }
 
         return Observable.error(new ComapiException("Session already started or SDK not initialised. Stop the active session first. [" + state.get() + "]"));
@@ -271,7 +252,7 @@ public class SessionController extends ApiWrapper {
                             .subscribeOn(Schedulers.io())
                             .observeOn(Schedulers.io()))
                     .doOnNext(token -> log.d("Received 3rd party auth token: " + token))
-                    .map(token -> getSessionCreateRequest(token, sessionCreateManager.getSessionAuthId(), deviceId))
+                    .concatMap(token -> getSessionCreateRequest(token, sessionCreateManager.getSessionAuthId(), deviceId))
                     .concatMap(sessionCreateRequest -> service.createSession(apiSpaceId, sessionCreateRequest)
                             .subscribeOn(Schedulers.io())
                             .observeOn(Schedulers.io())
@@ -296,13 +277,34 @@ public class SessionController extends ApiWrapper {
      * @param deviceId      Device ID.
      * @return Request for creating new session.
      */
-    private SessionCreateRequest getSessionCreateRequest(String token, String sessionAuthId, String deviceId) {
-        return new SessionCreateRequest(sessionAuthId, token)
+    private Observable<SessionCreateRequest> getSessionCreateRequest(String token, String sessionAuthId, String deviceId) {
+        if (isFcmEnabled) {
+            return getPushToken().map(pushToken -> getSessionCreateRequest(token, sessionAuthId, deviceId, pushToken));
+        } else {
+            return Observable.fromCallable(() -> getSessionCreateRequest(token, sessionAuthId, deviceId, null));
+        }
+    }
+
+    /**
+     * Gets request for creating new session.
+     *
+     * @param token         Authentication token.
+     * @param sessionAuthId Authentication id for the currently running task.
+     * @param deviceId      Device ID.
+     * @param pushToken     FCM push token.
+     * @return Request for creating new session.
+     */
+    private SessionCreateRequest getSessionCreateRequest(String token, String sessionAuthId, String deviceId, String pushToken) {
+        SessionCreateRequest request = new SessionCreateRequest(sessionAuthId, token)
                 .setDeviceId(deviceId)
                 .setPlatform(DeviceHelper.PLATFORM)
                 .setPlatformVersion(Build.VERSION.RELEASE)
                 .setSdkType(DeviceHelper.SDK_TYPE)
                 .setSdkVersion(RxComapi.getVersion());
+        if (pushToken != null) {
+            request.setPush(new PushConfig(packageName, pushToken));
+        }
+        return request;
     }
 
     /**
@@ -325,13 +327,7 @@ public class SessionController extends ApiWrapper {
                 .doOnError(voidResponse -> state.set(oldState));
     }
 
-    /**
-     * Gets an observable task for push token registration. Will emit FCM push token for provided senderId.
-     *
-     * @return Observable task for push token registration.
-     */
-    private Observable<Pair<SessionData, Response<Void>>> updatePushToken(SessionData session) {
-
+    private Observable<String> getPushToken() {
         return Observable.create((Observable.OnSubscribe<String>) sub -> {
             String token = dataMgr.getDeviceDAO().device().getPushToken();
             if (TextUtils.isEmpty(token)) {
@@ -347,12 +343,22 @@ public class SessionController extends ApiWrapper {
             }
             sub.onNext(token);
             sub.onCompleted();
-        }).concatMap(token -> doUpdatePush(session, token))
+        });
+    }
+
+    /**
+     * Gets an observable task for push token registration. Will emit FCM push token for provided senderId.
+     *
+     * @return Observable task for push token registration.
+     */
+    private Observable<Pair<SessionData, Response<Void>>> updatePushToken(SessionData session) {
+
+        return getPushToken().concatMap(token -> doUpdatePush(session, token))
                 .map(result -> new Pair<>(session, result));
     }
 
     Observable<Response<Void>> doUpdatePush(final SessionData session, final String token) {
-        if (!TextUtils.isEmpty(token)) {
+        if (isFcmEnabled && !TextUtils.isEmpty(token)) {
             return service.updatePushToken(AuthManager.addAuthPrefix(session.getAccessToken()), apiSpaceId, session.getSessionId(), new PushConfig(packageName, token));
         } else {
             return Observable.fromCallable(() -> null);
@@ -392,12 +398,7 @@ public class SessionController extends ApiWrapper {
                 .doOnError(throwable -> {
                     state.compareAndSet(GlobalState.SESSION_STARTING, GlobalState.SESSION_OFF);
                     sessionCreateManager.setStop();
-                })
-                .concatMap(newSession ->
-                        Observable.zip(
-                                Observable.just(newSession),
-                                doUpdatePush(newSession, dataMgr.getDeviceDAO().device().getPushToken()),
-                                (session, voidResult) -> session));
+                });
     }
 
     /**

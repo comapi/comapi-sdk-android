@@ -208,4 +208,10 @@ public interface RestApi {
     @POST("/apispaces/{apiSpaceId}/channels/facebook/state")
     Observable<Response<String>> createFbOptInState(@Header("Authorization") String authorization, @Path("apiSpaceId") String apiSpaceId, @Body Object body);
 
+    /*
+     * Analytics
+     */
+    @Headers({"Accept: application/json"})
+    @GET
+    Observable<Response<Void>> click(@Url String url, @Query("platform") String platform);
 }

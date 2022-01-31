@@ -1,5 +1,6 @@
 package com.comapi.internal.push;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,12 +9,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import android.text.Html;
 import android.text.TextUtils;
 
 import com.comapi.internal.receivers.NotificationClickReceiver;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -24,16 +28,18 @@ import java.util.Random;
 public
 class PushBuilder {
 
-    private final String correlationId;
+    private final String trackingUrl;
     private final String title;
     private final String body;
     private final String url;
+    private final HashMap<String, String> data;
 
-    public PushBuilder(String correlationId, String title, String body, String url) {
-        this.correlationId = correlationId;
+    public PushBuilder(String title, String body, String url, @Nullable String trackingUrl, @Nullable HashMap<String, String> data) {
         this.title = title;
         this.body = body;
         this.url = url;
+        this.trackingUrl = trackingUrl;
+        this.data = data;
     }
 
     private void setupChannel(Context context, ChannelData channelData) {
@@ -53,6 +59,7 @@ class PushBuilder {
         }
     }
 
+    @SuppressLint("LaunchActivityFromNotification")
     Notification buildNotification(Context context, ChannelData channelData, PushUIConfig pushUIConfig) {
 
         setupChannel(context, channelData);
@@ -88,14 +95,21 @@ class PushBuilder {
         return notification;
     }
 
+    @SuppressLint("LaunchActivityFromNotification")
     private PendingIntent createPendingIntent(Context context) {
 
         Intent intent = new Intent(context, NotificationClickReceiver.class);
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.setAction(PushDataKeys.PUSH_CLICK_ACTION);
-        intent.putExtra(PushDataKeys.KEY_PUSH_DEEP_LINK, url);
-        intent.putExtra(PushDataKeys.KEY_PUSH_ACTION_ID, "TODO");
-        intent.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, correlationId);
+        if (url != null) {
+            intent.putExtra(PushDataKeys.KEY_PUSH_DEEP_LINK, url);
+        }
+        if (trackingUrl != null) {
+            intent.putExtra(PushDataKeys.KEY_PUSH_TRACKING_URL, trackingUrl);
+        }
+        if (data != null) {
+            intent.putExtra(PushDataKeys.KEY_PUSH_DATA, data);
+        }
         int pendingIntentId = Math.abs(new Random().nextInt(Integer.MAX_VALUE));
         return PendingIntent.getBroadcast(context, pendingIntentId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
@@ -116,8 +130,8 @@ class PushBuilder {
 
     }
 
-    public String getCorrelationId() {
-        return correlationId;
+    public String getTrackingUrl() {
+        return trackingUrl;
     }
 
     public String getTitle() {

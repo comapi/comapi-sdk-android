@@ -6,8 +6,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import java.io.Serializable;
 
 import com.comapi.BuildConfig;
+import com.comapi.internal.push.PushDataKeys;
+
 import com.comapi.internal.log.LogManager;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.receivers.PushBroadcastReceiver;
@@ -40,7 +43,7 @@ public class CustomPushWithAction {
     private Boolean messageReceived;
     private Boolean notificationHandled;
     private Boolean clickHandled;
-    private final String messageId = "msgID";
+    private final String trackingUrl = "url";
     private final String body = "body";
     private final String title = "title";
     private final String link = "http://google.com";
@@ -61,18 +64,15 @@ public class CustomPushWithAction {
                 new LocalNotificationsManager(RuntimeEnvironment.application, new Logger(new LogManager(), "")) {
                     @Override
                     public void handleNotification(PushBuilder builder) {
-//                        assertEquals(messageId, builder.getCorrelationId());
-//                        assertEquals(title, builder.getTitle());
-//                        assertEquals(link, builder.getClickActionDetails().get("link"));
-//                        assertEquals(action, builder.getClickActionDetails().get("action"));
-//                        assertEquals(actionId, builder.getClickActionDetails().get("id"));
+                        assertEquals(title, builder.getTitle());
+                        assertEquals(CustomPushWithAction.this.trackingUrl, builder.getTrackingUrl());
+                        assertEquals(body, builder.getBody());
                         notificationHandled = true;
                     }
                     @Override
-                    public void handleNotificationClick(String messageId, String id, String link) {
-                        assertEquals(CustomPushWithAction.this.messageId, messageId);
+                    public void handleNotificationClick(String correlationId, Serializable data, String link) {
+                        assertEquals(CustomPushWithAction.this.trackingUrl, trackingUrl);
                         assertEquals(CustomPushWithAction.this.link, link);
-                        assertEquals(CustomPushWithAction.this.actionId, id);
                         clickHandled = true;
                     }
                 },
@@ -94,9 +94,9 @@ public class CustomPushWithAction {
 
         LocalNotificationsManager lnm = new LocalNotificationsManager(RuntimeEnvironment.application, new Logger(new LogManager(), ""));
 
-        Method method = lnm.getClass().getDeclaredMethod("createDeepLinkIntent", String.class);
+        Method method = lnm.getClass().getDeclaredMethod("createDeepLinkIntent", String.class, Serializable.class, String.class);
         method.setAccessible(true);
-        Intent i = (Intent) method.invoke(lnm, "link");
+        Intent i = (Intent) method.invoke(lnm, "correlationId", new HashMap(), "link");
 
         assertEquals(Intent.ACTION_VIEW, i.getAction());
         assertTrue(i.getCategories().contains(Intent.CATEGORY_DEFAULT));
@@ -112,8 +112,7 @@ public class CustomPushWithAction {
     public void testActionClick() {
         setUp();
         Intent i = new Intent(PushDataKeys.PUSH_CLICK_ACTION);
-        i.putExtra(PushDataKeys.KEY_PUSH_CORRELATION_ID, messageId);
-        i.putExtra(PushDataKeys.KEY_PUSH_ACTION_ID, actionId);
+        i.putExtra(PushDataKeys.KEY_PUSH_TRACKING_URL, trackingUrl);
         i.putExtra(PushDataKeys.KEY_PUSH_DEEP_LINK, link);
         receiver.onReceive(RuntimeEnvironment.application, i);
         assertTrue(clickHandled);
@@ -125,9 +124,11 @@ public class CustomPushWithAction {
         setUp();
 
         Map<String, String> data = new HashMap<>();
-        data.put(PushDataKeys.KEY_PUSH_MAIN, String.format("{title:\"%s\",body:\"%s\",deepLink:{url:\"%s\",correlationId:\"%s\"}}", title, body, link, correlationId));
+        data.put("title", title);
+        data.put("body", body);
+        data.put(PushDataKeys.KEY_PUSH_DEEP_LINK, String.format("{url:\"%s\",%s:\"%s\"}", link, PushDataKeys.KEY_PUSH_TRACKING_URL, CustomPushWithAction.this.trackingUrl));
 
-        Method method = receiver.getClass().getDeclaredMethod("handleData", Map.class);
+        Method method = receiver.getClass().getDeclaredMethod("handleData", HashMap.class);
         method.setAccessible(true);
         method.invoke(receiver, data);
         assertTrue(notificationHandled);

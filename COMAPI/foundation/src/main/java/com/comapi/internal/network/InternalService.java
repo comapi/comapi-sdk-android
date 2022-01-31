@@ -40,6 +40,7 @@ import com.comapi.internal.ListenerListAdapter;
 import com.comapi.internal.data.DataManager;
 import com.comapi.internal.data.SessionData;
 import com.comapi.internal.helpers.APIHelper;
+import com.comapi.internal.helpers.DeviceHelper;
 import com.comapi.internal.log.LogLevel;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.api.ComapiService;
@@ -67,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import retrofit2.Response;
 import rx.Observable;
 
 /**
@@ -1015,6 +1017,10 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
     @Override
     public void createFbOptInState(Callback<ComapiResult<String>> callback) {
         adapter.adapt(createFbOptInState(), callback);
+    }
+
+    public Observable<Boolean> sendClickData(String correlationUrl) {
+        return service.click(correlationUrl, DeviceHelper.PLATFORM).map(Response::isSuccessful);
     }
 
     /**

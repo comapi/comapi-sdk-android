@@ -368,7 +368,6 @@ public class ComapiClientTest {
         server.enqueue(mr);
         server.enqueue(createMockResponse("rest_session_start.json", 200).addHeader("ETag", "eTag"));
         server.enqueue(createMockResponse("rest_session_create.json", 200).addHeader("ETag", "eTag"));
-        server.enqueue(getMockPushResponse());
         server.enqueue(createMockResponse("rest_profile_update.json", 200).addHeader("ETag", "eTag"));
 
         pc.service().profile().updateProfile(new HashMap<>(), null).toBlocking().forEach(response -> {

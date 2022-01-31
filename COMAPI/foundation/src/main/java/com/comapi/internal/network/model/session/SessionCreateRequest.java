@@ -51,6 +51,9 @@ public class SessionCreateRequest {
     @SerializedName("sdkVersion")
     private String sdkVersion;
 
+    @SerializedName("push")
+    private PushConfig push;
+
     /**
      * Recommended constructor.
      *
@@ -114,6 +117,11 @@ public class SessionCreateRequest {
      */
     public SessionCreateRequest setSdkVersion(String sdkVersion) {
         this.sdkVersion = sdkVersion;
+        return this;
+    }
+
+    public SessionCreateRequest setPush(PushConfig push) {
+        this.push = push;
         return this;
     }
 }

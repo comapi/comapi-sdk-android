@@ -8,12 +8,15 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 
+import java.io.Serializable;
+
 import com.comapi.R;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.InternalService;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.UUID;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -44,16 +47,9 @@ public class LocalNotificationsManager {
 
     public void handleNotification(PushBuilder builder) {
 
-        InternalService service = this.service.get();
-        if (service != null) {
-            log.d("TODO: send `delivered`");
-            //callObs(service.updatePushMessageStatus(builder.getMessageId(), "delivered"));
-            //TODO send `delivered` for messageId
-        }
-
         Context context = this.context.get();
         if (context != null) {
-            int id = builder.getCorrelationId().hashCode();
+            int id = UUID.randomUUID().hashCode();
             Notification n = builder.buildNotification(context, channelData, uiConfig);
             NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -67,36 +63,36 @@ public class LocalNotificationsManager {
         }
     }
 
-    public void handleNotificationClick(String correlationId, String actionId, String link) {
-        InternalService service = this.service.get();
-        if (service != null) {
-            log.d("TODO: send `read correlationId="+correlationId);
-            //callObs(service.updatePushMessageStatus(messageId, "read"));
-            //TODO send `read` for messageId
-            if (link != null) {
+    public void handleNotificationClick(String trackingUrl, Serializable data, String link) {
 
-                try {
-                    Intent intent = createDeepLinkIntent(link);
-                    Context context = this.context.get();
-                    if (context != null) {
-                        if (isActivityAvailable(context, intent)) {
-                            context.getApplicationContext().startActivity(intent);
-                        }
-                    } else {
-                        log.e("Missing week context reference in LocalNotificationsManager.handleNotification");
+        if (trackingUrl != null) {
+            InternalService service = this.service.get();
+            if (service != null) {
+                callObs(service.sendClickData(trackingUrl));
+            } else {
+                log.e("Missing week reference to InternalService in LocalNotificationsManager.handleNotification");
+            }
+        }
+
+        if (link != null) {
+            try {
+                Intent intent = createDeepLinkIntent(trackingUrl, data, link);
+                Context context = this.context.get();
+                if (context != null) {
+                    if (isActivityAvailable(context, intent)) {
+                        context.getApplicationContext().startActivity(intent);
                     }
-                } catch (Exception e) {
-                    log.f("Error creating deep link intent correlationId="+correlationId+" id="+actionId+" link="+link, e);
+                } else {
+                    log.e("Missing week context reference in LocalNotificationsManager.handleNotification");
                 }
-
-                log.d("TODO: send `click` correlationId="+correlationId+" id="+actionId+" link="+link);
-                //TODO send `click` for link+id
+            } catch (Exception e) {
+                log.f("Error creating deep link intent trackingUrl="+trackingUrl+" link="+link, e);
             }
         }
     }
 
     public void setService(InternalService service) {
-        this.service = new WeakReference<>(service);
+        this.service = new WeakReference<InternalService>(service);
     }
 
     private <T> void callObs(Observable<T> o) {
@@ -117,20 +113,24 @@ public class LocalNotificationsManager {
                 });
     }
 
-    private Intent createDeepLinkIntent(String link) {
+    private Intent createDeepLinkIntent(String trackingUrl, Serializable data, String link) {
         Intent intent = new Intent();
         intent.setData(Uri.parse(link));
         intent.setAction(Intent.ACTION_VIEW);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (data != null) {
+            intent.putExtra(PushDataKeys.KEY_PUSH_DATA, data);
+        }
+        if (trackingUrl != null) {
+            intent.putExtra(PushDataKeys.KEY_PUSH_TRACKING_URL, trackingUrl);
+        }
         return intent;
     }
 
     private boolean isActivityAvailable(Context context, Intent intent) {
             final PackageManager mgr = context.getApplicationContext().getPackageManager();
-            List<ResolveInfo> list =
-                    mgr.queryIntentActivities(intent,
-                            PackageManager.MATCH_DEFAULT_ONLY);
+            List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
             return list.size() > 0;
     }
 }

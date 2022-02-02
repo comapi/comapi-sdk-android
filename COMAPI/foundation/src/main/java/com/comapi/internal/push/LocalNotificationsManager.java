@@ -15,7 +15,10 @@ import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.InternalService;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import rx.Observable;
@@ -119,7 +122,13 @@ public class LocalNotificationsManager {
         intent.setAction(Intent.ACTION_VIEW);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (data != null) {
+        if (data instanceof HashMap) {
+            @SuppressWarnings("unchecked")
+            HashMap<String, String> map = ((HashMap<String, String>) data);
+            for (Map.Entry<String, String> pair : map.entrySet()) {
+                intent.putExtra(pair.getKey(), pair.getValue());
+            }
+        } else if (data != null) {
             intent.putExtra(PushDataKeys.KEY_PUSH_DATA, data);
         }
         if (trackingUrl != null) {

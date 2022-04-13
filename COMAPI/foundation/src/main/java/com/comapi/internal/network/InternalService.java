@@ -1020,7 +1020,7 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
     }
 
     public Observable<Boolean> sendClickData(String correlationUrl) {
-        return service.click(correlationUrl, DeviceHelper.PLATFORM).map(Response::isSuccessful);
+        return service.click(correlationUrl).map(Response::isSuccessful);
     }
 
     /**

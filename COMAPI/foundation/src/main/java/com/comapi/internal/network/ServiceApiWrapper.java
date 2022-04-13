@@ -20,8 +20,8 @@
 
 package com.comapi.internal.network;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.comapi.QueryBuilder;
@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 
 import retrofit2.Response;
+import retrofit2.http.Body;
+import retrofit2.http.Url;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -259,6 +261,18 @@ class ServiceApiWrapper extends ApiWrapper {
      */
     Observable<ComapiResult<Void>> doUpdateMessageStatus(@NonNull final String token, @NonNull final String conversationId, @NonNull final List<MessageStatusUpdate> msgStatusList) {
         return wrapObservable(service.updateMessageStatus(AuthManager.addAuthPrefix(token), apiSpaceId, conversationId, msgStatusList).map(mapToComapiResult()), log, "Updating message status in conversation " + conversationId);
+    }
+
+    /**
+     * Sets statuses a push message.
+     *
+     * @param token          Comapi access token.
+     * @param messageId ID of a message.
+     * @param status  new status.
+     * @return Observable to modify message statuses.
+     */
+    Observable<ComapiResult<Void>> doUpdatePushMessageStatus(@NonNull final String token, @NonNull final String messageId, @NonNull final String status) {
+        return wrapObservable(service.updatePushMessageStatus(AuthManager.addAuthPrefix(token), apiSpaceId, messageId, status).map(mapToComapiResult()), log, "Updating message " + messageId + " to "+ status);
     }
 
     /**

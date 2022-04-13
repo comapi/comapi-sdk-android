@@ -21,8 +21,8 @@
 package com.comapi.internal.network;
 
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -40,6 +40,7 @@ import com.comapi.internal.ListenerListAdapter;
 import com.comapi.internal.data.DataManager;
 import com.comapi.internal.data.SessionData;
 import com.comapi.internal.helpers.APIHelper;
+import com.comapi.internal.helpers.DeviceHelper;
 import com.comapi.internal.log.LogLevel;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.api.ComapiService;
@@ -67,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import retrofit2.Response;
 import rx.Observable;
 
 /**
@@ -796,6 +798,26 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
     /**
      * Sets statuses for sets of messages.
      *
+     * @param messageId ID of a message.
+     * @param status  message status.
+     * @return Observable to modify message statuses.
+     */
+    public Observable<ComapiResult<Void>> updatePushMessageStatus(@NonNull final String messageId, @NonNull final String status) {
+
+        final String token = getToken();
+
+        if (sessionController.isCreatingSession()) {
+            return getTaskQueue().queueUpdatePushMessageStatus(messageId, status);
+        } else if (TextUtils.isEmpty(token)) {
+            return Observable.error(getSessionStateErrorDescription());
+        } else {
+            return doUpdatePushMessageStatus(token, messageId, status);
+        }
+    }
+
+    /**
+     * Sets statuses for sets of messages.
+     *
      * @param conversationId ID of a conversation to modify.
      * @param msgStatusList  List of status modifications.
      * @param callback       Callback to deliver new session instance.
@@ -995,6 +1017,10 @@ public class InternalService extends ServiceQueue implements ComapiService, RxCo
     @Override
     public void createFbOptInState(Callback<ComapiResult<String>> callback) {
         adapter.adapt(createFbOptInState(), callback);
+    }
+
+    public Observable<Boolean> sendClickData(String correlationUrl) {
+        return service.click(correlationUrl).map(Response::isSuccessful);
     }
 
     /**

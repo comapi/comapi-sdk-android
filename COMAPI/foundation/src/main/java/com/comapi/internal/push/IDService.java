@@ -21,9 +21,11 @@
 package com.comapi.internal.push;
 
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 
-import com.google.firebase.iid.FirebaseInstanceIdService;
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.google.firebase.messaging.FirebaseMessagingService;
 
 /**
  * Service to handle Instance ID service token refresh notifications for FCM security.
@@ -32,7 +34,7 @@ import com.google.firebase.iid.FirebaseInstanceIdService;
  * @author Marcin Swierczek
  * @since 1.0.0
  */
-public class IDService extends FirebaseInstanceIdService {
+public class IDService extends FirebaseMessagingService {
 
     public static final String ACTION_REFRESH_PUSH = "com.comapi.push.refresh";
 
@@ -43,7 +45,7 @@ public class IDService extends FirebaseInstanceIdService {
      * you retrieve the token.
      */
     @Override
-    public void onTokenRefresh() {
+    public void onNewToken(@NonNull String token) {
         Intent intent = new Intent(ACTION_REFRESH_PUSH);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }

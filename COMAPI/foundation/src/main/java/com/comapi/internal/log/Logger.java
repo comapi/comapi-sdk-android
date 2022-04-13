@@ -20,7 +20,7 @@
 
 package com.comapi.internal.log;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Helper class for all log messages in Comapi SDK. Controls the logging level and triggers any additional tasks performed during logging.

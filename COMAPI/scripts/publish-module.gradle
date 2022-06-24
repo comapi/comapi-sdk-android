@@ -39,7 +39,7 @@ afterEvaluate {
                 pom {
                     name = 'Dotdigital Foundation SDK'
                     description = 'Provides the basics of any Dotdigital integration into your apps. The Dotdigital Foundation SDK is responsible for handling: registration, control of User and Device registration details, sending and receiving content & data.'
-                    url = 'http://www.comapi.com/'
+                    url = 'https://dotdigital.com/'
                     licenses {
                         license {
                             name = 'The Apache License, Version 2.0'

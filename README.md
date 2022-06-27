@@ -10,14 +10,14 @@ Via Maven
 <dependency>
     <groupId>com.comapi</groupId>
     <artifactId>foundation</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
 or Gradle
 
 ```
-compile 'com.comapi:foundation:1.3.0'
+compile 'com.comapi:foundation:1.4.0'
 ```
 
 For more information about the integration please visit [the website](http://docs.cpaas.dotdigital.com/reference#one-sdk-android-overview).

@@ -49,8 +49,8 @@ afterEvaluate {
                     developers {
                         developer {
                             id = 'marcinswierczek'
-                            name = 'Marcin Swierczek';
-                            email = 'cpaas.info@dotdigital.com';
+                            name = 'Marcin Swierczek'
+                            email = 'cpaas.info@dotdigital.com'
                         }
                     }
                     scm {

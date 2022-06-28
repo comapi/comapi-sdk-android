@@ -21,8 +21,8 @@
 package com.comapi.internal.network.sockets;
 
 import android.os.Build;
+import android.os.Looper;
 
-import com.comapi.BuildConfig;
 import com.comapi.MessagingListener;
 import com.comapi.ProfileListener;
 import com.comapi.Session;
@@ -56,6 +56,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
+import static org.robolectric.Shadows.shadowOf;
 
 import java.io.IOException;
 import java.util.Map;
@@ -71,7 +73,8 @@ import static org.junit.Assert.assertNotNull;
  * @since 1.0.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "com.comapi.appmessaging/src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.P)
+@LooperMode(LooperMode.Mode.PAUSED)
 public class SocketEventsTest {
 
     private SocketEventDispatcher dispatcher;
@@ -105,6 +108,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "message_sent.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertEquals(true, receiver.sent.getName().equals(MessageSentEvent.TYPE));
         assertNotNull(receiver.sent.getEventId());
         assertEquals(true, receiver.sent.getConversationEventId() > 0);
@@ -265,6 +269,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "message_delivered.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertEquals(true, receiver.delivered.getName().equals(MessageDeliveredEvent.TYPE));
         assertNotNull(receiver.delivered.getEventId());
         assertEquals(true, receiver.delivered.getConversationEventId() > 0);
@@ -280,6 +285,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "message_read.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertEquals(true, receiver.read.getName().equals(MessageReadEvent.TYPE));
         assertNotNull(receiver.read.getEventId());
         assertEquals(true, receiver.read.getConversationEventId() > 0);
@@ -294,6 +300,7 @@ public class SocketEventsTest {
     public void dispatchIsTyping() throws IOException {
         String json = ResponseTestHelper.readFromFile(this, "is_typing.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertEquals(true, receiver.isTyping.getName().equals(ParticipantTypingEvent.TYPE));
         assertNotNull(receiver.isTyping.getEventId());
         assertNotNull(receiver.isTyping.getConversationId());
@@ -305,6 +312,7 @@ public class SocketEventsTest {
     public void dispatchIsNotTyping() throws IOException {
         String json = ResponseTestHelper.readFromFile(this, "typing_off.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertEquals(true, receiver.isNotTyping.getName().equals(ParticipantTypingOffEvent.TYPE));
         assertNotNull(receiver.isNotTyping.getEventId());
         assertNotNull(receiver.isNotTyping.getConversationId());
@@ -317,6 +325,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "socket_info.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertEquals(true, receiver.socketStart.getName().equals(SocketStartEvent.TYPE));
         assertNotNull(receiver.socketStart.getEventId());
         assertNotNull(receiver.socketStart.getSocketId());
@@ -328,6 +337,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "participant_added.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertNotNull(receiver.participantAdded.getEventId());
         assertEquals(true, receiver.participantAdded.getName().equals(ParticipantAddedEvent.TYPE));
         assertNotNull(receiver.participantAdded.getProfileId());
@@ -340,6 +350,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "participant_updated.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertNotNull(receiver.participantUpdated.getEventId());
         assertEquals(true, receiver.participantUpdated.getName().equals(ParticipantUpdatedEvent.TYPE));
         assertNotNull(receiver.participantUpdated.getProfileId());
@@ -352,6 +363,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "participant_removed.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertNotNull(receiver.participantRemoved.getEventId());
         assertEquals(true, receiver.participantRemoved.getName().equals(ParticipantRemovedEvent.TYPE));
         assertNotNull(receiver.participantRemoved.getProfileId());
@@ -363,6 +375,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "conversation_update.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertNotNull(receiver.conversationUpdate.getEventId());
         assertEquals("myNewConversation", receiver.conversationUpdate.getConversationName());
         assertEquals(true, receiver.conversationUpdate.getName().equals(ConversationUpdateEvent.TYPE));
@@ -383,6 +396,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "conversation_delete.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertNotNull(receiver.conversationDelete.getEventId());
         assertEquals(true, receiver.conversationDelete.getName().equals(ConversationDeleteEvent.TYPE));
         assertEquals("\"33-EFUJLArhd3ar+j1D4/TR3JfNcvE\"", receiver.conversationDelete.getETag());
@@ -395,6 +409,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "conversation_undelete.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertNotNull(receiver.conversationUndelete.getEventId());
         assertEquals(true, receiver.conversationUndelete.getName().equals(ConversationUndeleteEvent.TYPE));
         assertEquals("\"33-EFUJLArhd3ar+j1D4/TR3JfNcvE\"", receiver.conversationUndelete.getETag());
@@ -411,6 +426,7 @@ public class SocketEventsTest {
 
         String json = ResponseTestHelper.readFromFile(this, "profile_update.json");
         dispatcher.onMessage(json);
+        shadowOf(Looper.getMainLooper()).idle();
         assertEquals(true, receiver.profileUpdate.getName().equals(ProfileUpdateEvent.TYPE));
         assertNotNull(receiver.profileUpdate.getApiSpaceId());
         assertNotNull(receiver.profileUpdate.toString());

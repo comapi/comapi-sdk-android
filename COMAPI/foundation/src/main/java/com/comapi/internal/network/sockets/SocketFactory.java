@@ -20,7 +20,7 @@
 
 package com.comapi.internal.network.sockets;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.AuthManager;

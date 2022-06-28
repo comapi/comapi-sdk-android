@@ -23,8 +23,8 @@ package com.comapi.internal.network;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.comapi.APIConfig;
@@ -50,19 +50,6 @@ import com.comapi.internal.network.model.conversation.Conversation;
 import com.comapi.internal.network.model.conversation.ConversationDetails;
 import com.comapi.internal.network.model.conversation.Participant;
 import com.comapi.internal.network.model.conversation.Scope;
-import com.comapi.internal.network.model.events.ProfileUpdateEvent;
-import com.comapi.internal.network.model.events.SocketStartEvent;
-import com.comapi.internal.network.model.events.conversation.ConversationDeleteEvent;
-import com.comapi.internal.network.model.events.conversation.ConversationUndeleteEvent;
-import com.comapi.internal.network.model.events.conversation.ConversationUpdateEvent;
-import com.comapi.internal.network.model.events.conversation.ParticipantAddedEvent;
-import com.comapi.internal.network.model.events.conversation.ParticipantRemovedEvent;
-import com.comapi.internal.network.model.events.conversation.ParticipantTypingEvent;
-import com.comapi.internal.network.model.events.conversation.ParticipantTypingOffEvent;
-import com.comapi.internal.network.model.events.conversation.ParticipantUpdatedEvent;
-import com.comapi.internal.network.model.events.conversation.message.MessageDeliveredEvent;
-import com.comapi.internal.network.model.events.conversation.message.MessageReadEvent;
-import com.comapi.internal.network.model.events.conversation.message.MessageSentEvent;
 import com.comapi.internal.network.model.messaging.Alert;
 import com.comapi.internal.network.model.messaging.ConversationEventsResponse;
 import com.comapi.internal.network.model.messaging.EventsQueryResponse;
@@ -73,7 +60,6 @@ import com.comapi.internal.network.model.messaging.MessagesQueryResponse;
 import com.comapi.internal.network.model.messaging.Part;
 import com.comapi.internal.network.model.messaging.UploadContentResponse;
 import com.comapi.internal.network.sockets.SocketController;
-import com.comapi.internal.network.sockets.SocketEventListener;
 import com.comapi.internal.push.PushManager;
 import com.comapi.mock.MockAuthenticator;
 
@@ -115,7 +101,7 @@ import static org.robolectric.RuntimeEnvironment.application;
  * @since 1.0.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "foundation/src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.P)
 public class ServiceCallbackTest {
 
     private static final long TIME_OUT = 10000;

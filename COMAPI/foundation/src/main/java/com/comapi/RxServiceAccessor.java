@@ -20,8 +20,8 @@
 
 package com.comapi;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.comapi.internal.network.ComapiResult;
 import com.comapi.internal.network.InternalService;
@@ -77,7 +77,7 @@ public class RxServiceAccessor {
     /**
      * Access COMAPI Service profile APIs.
      * This APIs version operates with the raw map of profile key-value pairs.
-     * @see this#profileWithDefaults
+     * @see RxServiceAccessor#profileWithDefaults
      *
      * @return COMAPI Service profile APIs.
      */

@@ -1,0 +1,91 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+// Because the components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
+
+    task androidJavadocs(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        android.libraryVariants.all { variant ->
+            if (variant.name == 'release') {
+                owner.classpath += variant.javaCompileProvider.get().classpath
+            }
+        }
+        exclude '**/R.html', '**/R.*.html', '**/index.html'
+    }
+
+    task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+        archiveClassifier.set('javadoc')
+        from androidJavadocs.destinationDir
+    }
+
+    task androidSourcesJar(type: Jar) {
+        archiveClassifier.set('sources')
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    artifacts {
+        archives androidSourcesJar
+        archives androidJavadocsJar
+    }
+
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+
+                pom {
+                    name = 'Dotdigital Foundation SDK'
+                    description = 'Provides the basics of any Dotdigital integration into your apps. The Dotdigital Foundation SDK is responsible for handling: registration, control of User and Device registration details, sending and receiving content & data.'
+                    url = 'https://dotdigital.com/'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'marcinswierczek'
+                            name = 'Marcin Swierczek'
+                            email = 'cpaas.info@dotdigital.com'
+                        }
+                    }
+                    scm {
+                        url = 'https://github.com/comapi/comapi-sdk-android'
+                        connection = 'scm:git:https://github.com/comapi/comapi-sdk-android.git'
+                        developerConnection = 'scm:git:https://github.com/comapi/comapi-sdk-android.git'
+                    }
+                }
+                repositories {
+                    maven {
+                        url = layout.buildDirectory.dir('release')
+                    }
+                }
+
+                /// Applies the component for the release build variant.
+                from components.release
+
+                // Adds javadocs and sources as separate jars.
+                artifact androidJavadocsJar
+                artifact androidSourcesJar
+
+                groupId = PUBLISH_GROUP_ID
+                artifactId = PUBLISH_ARTIFACT_ID
+                version = PUBLISH_VERSION
+            }
+        }
+    }
+}
+
+signing {
+//        sign configurations.archives
+    useInMemoryPgpKeys(
+            rootProject.ext["signing.keyId"],
+            rootProject.ext["signing.key"],
+            rootProject.ext["signing.password"],
+    )
+    sign publishing.publications
+}

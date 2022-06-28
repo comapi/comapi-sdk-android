@@ -27,7 +27,6 @@ import android.text.TextUtils;
 
 import com.comapi.GlobalState;
 import com.comapi.StateListener;
-import com.comapi.BuildConfig;
 import com.comapi.helpers.DataTestHelper;
 import com.comapi.helpers.ResponseTestHelper;
 import com.comapi.internal.ComapiException;
@@ -49,6 +48,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 
 import java.net.URI;
 import java.util.UUID;
@@ -65,6 +65,7 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.robolectric.RuntimeEnvironment.application;
+import static org.robolectric.Shadows.shadowOf;
 
 /**
  * Robolectric for Network setup.
@@ -73,7 +74,8 @@ import static org.robolectric.RuntimeEnvironment.application;
  * @since 1.0.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "foundation/src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.P)
+@LooperMode(LooperMode.Mode.PAUSED)
 public class SessionControllerTest {
 
     private MockWebServer server;
@@ -234,11 +236,13 @@ public class SessionControllerTest {
         reAuthShouldFail = false;
         session = null;
         sessionController.scheduleNextAuthentication(0);
+        shadowOf(Looper.getMainLooper()).idle();
         assertNotNull(session);
 
         reAuthShouldFail = true;
         session = null;
         sessionController.scheduleNextAuthentication(0);
+        shadowOf(Looper.getMainLooper()).idle();
         assertNull(session);
     }
 

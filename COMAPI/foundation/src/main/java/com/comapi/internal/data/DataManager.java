@@ -21,14 +21,17 @@
 package com.comapi.internal.data;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.comapi.internal.log.Logger;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import com.comapi.internal.helpers.DeviceHelper;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Manager class for internal data storage.
@@ -81,9 +84,13 @@ public class DataManager {
         if (TextUtils.isEmpty(deviceDAO.device().getDeviceId())) {
             deviceDAO.setDeviceId(DeviceHelper.generateDeviceId(context));
             try {
-                deviceDAO.setInstanceId(FirebaseInstanceId.getInstance().getId());
+                deviceDAO.setInstanceId(Tasks.await(FirebaseMessaging.getInstance().getToken()));
             } catch (IllegalStateException e) {
                 deviceDAO.setInstanceId("empty");
+            } catch (InterruptedException e) {
+                deviceDAO.setInstanceId("empty");
+            } catch (ExecutionException e) {
+                e.printStackTrace();
             }
             deviceDAO.setAppVer(DeviceHelper.getAppVersion(context));
         }

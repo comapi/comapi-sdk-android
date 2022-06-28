@@ -20,7 +20,7 @@
 
 package com.comapi.internal.network;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.comapi.internal.data.DataManager;
 import com.comapi.internal.log.Logger;
@@ -312,6 +312,16 @@ class ServiceQueue extends ServiceApiWrapper {
                             log.d("doUpdateMessageStatus called from the service queue. " + queue.size() + " requests still pending.");
                             return doUpdateMessageStatus(token, conversationId, msgStatusList);
                         }
+                    })
+                    .doOnCompleted(this::executePending);
+        }
+
+        Observable<ComapiResult<Void>> queueUpdatePushMessageStatus(String messageId, String status) {
+
+            return createNewTask()
+                    .flatMap((Func1<String, Observable<ComapiResult<Void>>>) token -> {
+                        log.d("doUpdatePushMessageStatus called from the service queue. " + queue.size() + " requests still pending.");
+                        return doUpdatePushMessageStatus(token, messageId, status);
                     })
                     .doOnCompleted(this::executePending);
         }

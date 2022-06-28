@@ -191,6 +191,10 @@ public interface RestApi {
     @GET("/apispaces/{apiSpaceId}/conversations/{conversationId}/events")
     Observable<Response<List<JsonObject>>> queryEvents(@Header("Authorization") String authorization, @Path("apiSpaceId") String apiSpaceId, @Path("conversationId") String conversationId, @Query("from") final Long from, @Query("limit") final Integer limit);
 
+    @Headers({"Accept: application/json"})
+    @POST("TODO")
+    Observable<Response<Void>> updatePushMessageStatus(@Header("Authorization") String authorization, @Path("apiSpaceId") String apiSpaceId, @Path("messageId") String messageId, @Path("status") String status);
+
     /*
      * Content
      */
@@ -204,4 +208,10 @@ public interface RestApi {
     @POST("/apispaces/{apiSpaceId}/channels/facebook/state")
     Observable<Response<String>> createFbOptInState(@Header("Authorization") String authorization, @Path("apiSpaceId") String apiSpaceId, @Body Object body);
 
+    /*
+     * Analytics
+     */
+    @Headers({"Accept: application/json"})
+    @GET
+    Observable<Response<Void>> click(@Url String url);
 }

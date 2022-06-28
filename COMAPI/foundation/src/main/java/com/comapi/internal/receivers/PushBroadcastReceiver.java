@@ -25,12 +25,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 
+import com.comapi.internal.Parser;
+import com.comapi.internal.log.Logger;
 import com.comapi.internal.push.IDService;
+import com.comapi.internal.push.PushBuilder;
+import com.comapi.internal.push.LocalNotificationsManager;
+import com.comapi.internal.push.PushDataKeys;
 import com.comapi.internal.push.PushMessageListener;
 import com.comapi.internal.push.PushService;
 import com.comapi.internal.push.PushTokenListener;
 import com.comapi.internal.push.PushTokenProvider;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.internal.LinkedTreeMap;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Local broadcast receiver to listen for push messages and token refresh requests.
@@ -44,13 +55,17 @@ public class PushBroadcastReceiver extends BroadcastReceiver {
     private final PushMessageListener messageListener;
     private final Handler mainThreadHandler;
     private final PushTokenProvider provider;
+    private final LocalNotificationsManager lNM;
+    private Logger log;
 
-    public PushBroadcastReceiver(final Handler mainThreadHandler, PushTokenProvider provider, final PushTokenListener tokenListener, final PushMessageListener messageListener) {
+    public PushBroadcastReceiver(final Handler mainThreadHandler, PushTokenProvider provider, final PushTokenListener tokenListener, final PushMessageListener messageListener, LocalNotificationsManager lNM, Logger log) {
         super();
         this.mainThreadHandler = mainThreadHandler;
         this.provider = provider;
         this.tokenListener = tokenListener;
         this.messageListener = messageListener;
+        this.lNM = lNM;
+        this.log = log;
     }
 
     @Override
@@ -58,7 +73,40 @@ public class PushBroadcastReceiver extends BroadcastReceiver {
         if (IDService.ACTION_REFRESH_PUSH.equals(intent.getAction())) {
             tokenListener.onTokenRefresh(provider.getPushToken());
         } else if (PushService.ACTION_PUSH_MESSAGE.equals(intent.getAction())) {
-            dispatchMessage(messageListener, intent.getParcelableExtra(PushService.KEY_MESSAGE));
+            RemoteMessage msg = intent.getParcelableExtra(PushService.KEY_MESSAGE);
+            if (msg != null) {
+                handleData(new HashMap<>(msg.getData()));
+                dispatchMessage(messageListener, msg);
+            }
+        } else if (PushDataKeys.PUSH_CLICK_ACTION.equals(intent.getAction())) {
+            Serializable data = intent.getSerializableExtra(PushDataKeys.KEY_PUSH_DATA);
+            lNM.handleNotificationClick(intent.getStringExtra(PushDataKeys.KEY_PUSH_TRACKING_URL), data, intent.getStringExtra(PushDataKeys.KEY_PUSH_DEEP_LINK));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleData(HashMap<String, String> data) {
+        if (data != null) {
+            String ddDeepLink = data.get(PushDataKeys.KEY_PUSH_DEEP_LINK);
+            if (ddDeepLink != null) {
+                String deepLinkUrl = null;
+                String trackingUrl = null;
+                String title = String.valueOf(data.get(PushDataKeys.KEY_PUSH_TITLE));
+                String body = String.valueOf(data.get(PushDataKeys.KEY_PUSH_BODY));
+                LinkedTreeMap<String, ?> ddDeepLinkMap;
+                try {
+                    ddDeepLinkMap = (new Parser()).parse(ddDeepLink, LinkedTreeMap.class);
+                    deepLinkUrl = String.valueOf(ddDeepLinkMap.get(PushDataKeys.KEY_PUSH_URL));
+                    trackingUrl = String.valueOf(ddDeepLinkMap.get(PushDataKeys.KEY_PUSH_TRACKING_URL));
+                } catch (Exception e) {
+                    log.e("Error when parsing push message deep link data. "+e.getLocalizedMessage());
+                }
+                if (!title.trim().isEmpty() && !body.trim().isEmpty() && deepLinkUrl != null && !deepLinkUrl.trim().isEmpty() ) {
+                    lNM.handleNotification(new PushBuilder(title, body, deepLinkUrl, trackingUrl, data));
+                } else {
+                    log.e("Missing data in push message.");
+                }
+            }
         }
     }
 

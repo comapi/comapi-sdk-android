@@ -29,7 +29,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.comapi.helpers.DataTestHelper;
@@ -88,7 +88,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 1.0.0
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "foundation/src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.M, constants = BuildConfig.class, packageName = "com.comapi")
+@Config(sdk = Build.VERSION_CODES.P)
 public class ComapiClientTest {
 
     private MockWebServer server;
@@ -368,7 +368,6 @@ public class ComapiClientTest {
         server.enqueue(mr);
         server.enqueue(createMockResponse("rest_session_start.json", 200).addHeader("ETag", "eTag"));
         server.enqueue(createMockResponse("rest_session_create.json", 200).addHeader("ETag", "eTag"));
-        server.enqueue(getMockPushResponse());
         server.enqueue(createMockResponse("rest_profile_update.json", 200).addHeader("ETag", "eTag"));
 
         pc.service().profile().updateProfile(new HashMap<>(), null).toBlocking().forEach(response -> {

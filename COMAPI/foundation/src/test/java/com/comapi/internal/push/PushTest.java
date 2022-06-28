@@ -40,8 +40,10 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 
 import static junit.framework.Assert.assertEquals;
+import static org.robolectric.Shadows.shadowOf;
 
 /**
  * Robolectric tests for application lifecycle observer.
@@ -51,6 +53,7 @@ import static junit.framework.Assert.assertEquals;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = Build.VERSION_CODES.P)
+@LooperMode(LooperMode.Mode.PAUSED)
 public class PushTest {
 
     PushManager mgr;
@@ -102,6 +105,7 @@ public class PushTest {
 
         Intent intent = new Intent(IDService.ACTION_REFRESH_PUSH);
         LocalBroadcastManager.getInstance(RuntimeEnvironment.application).sendBroadcast(intent);
+        shadowOf(Looper.getMainLooper()).idle();
         assertEquals(TOKEN, token);
     }
 

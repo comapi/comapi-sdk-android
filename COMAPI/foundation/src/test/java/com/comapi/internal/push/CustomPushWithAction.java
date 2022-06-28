@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,6 +31,7 @@ import java.util.Map;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.robolectric.Shadows.shadowOf;
 
 /**
  * @author Marcin Swierczek
@@ -37,6 +39,7 @@ import static junit.framework.Assert.assertTrue;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = Build.VERSION_CODES.P)
+@LooperMode(LooperMode.Mode.PAUSED)
 public class CustomPushWithAction {
 
     private PushBroadcastReceiver receiver;
@@ -86,6 +89,7 @@ public class CustomPushWithAction {
         RemoteMessage rm = new RemoteMessage(new Bundle());
         i.putExtra(PushService.KEY_MESSAGE, rm);
         receiver.onReceive(RuntimeEnvironment.application, i);
+        shadowOf(Looper.getMainLooper()).idle();
         assertTrue(messageReceived);
     }
 

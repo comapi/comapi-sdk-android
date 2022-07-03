@@ -21,12 +21,16 @@
 package com.comapi;
 
 import android.app.Application;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
 
 import com.comapi.internal.CallbackAdapter;
 import com.comapi.internal.ComapiException;
@@ -46,7 +50,10 @@ import com.comapi.internal.network.SessionController;
 import com.comapi.internal.network.SessionCreateManager;
 import com.comapi.internal.network.api.RestApi;
 import com.comapi.internal.network.sockets.SocketController;
+import com.comapi.internal.push.PushDataKeys;
 import com.comapi.internal.push.PushManager;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -213,8 +220,6 @@ public abstract class BaseClient<T> implements IClient<T> {
                 SocketController socketController = service.initialiseSocketClient(sessionController, listenerListAdapter, baseURIs);
                 lifecycleListeners.add(socketController.createLifecycleListener());
                 initialiseLifecycleObserver(application);
-
-                pushMgr.setService(service);
 
                 sub.onNext(state.compareAndSet(GlobalState.INITIALISING, GlobalState.INITIALISED));
                 sub.onCompleted();
@@ -406,5 +411,54 @@ public abstract class BaseClient<T> implements IClient<T> {
     @Override
     public void removeListener(StateListener listener) {
         listenerListAdapter.removeListener(listener);
+    }
+
+    protected Observable<PushDetails> handlePushNotification(Context activityContext, Intent i, boolean startActivity) {
+        if (i.hasExtra(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
+            JSONObject deepLinkData;
+            try {
+                deepLinkData = new JSONObject((String) i.getSerializableExtra(PushDataKeys.KEY_PUSH_DEEP_LINK));
+                if (deepLinkData.has(PushDataKeys.KEY_PUSH_URL)) {
+                    String url = deepLinkData.getString(PushDataKeys.KEY_PUSH_URL);
+                    Observable<Boolean> tracking;
+                    if (deepLinkData.has(PushDataKeys.KEY_PUSH_TRACKING_URL)) {
+                        String trackingUrl = deepLinkData.getString(PushDataKeys.KEY_PUSH_TRACKING_URL);
+                        tracking = service.sendClickData(trackingUrl);
+                    } else {
+                        tracking = Observable.fromCallable(() -> false);
+                    }
+                    return Observable.fromCallable(() -> {
+                        if (startActivity) {
+                            Intent intent = new Intent();
+                            intent.setData(Uri.parse(url));
+                            intent.setAction(Intent.ACTION_VIEW);
+                            intent.addCategory(Intent.CATEGORY_DEFAULT);
+                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                            try {
+                                activityContext.startActivity(intent);
+                                return true;
+                            } catch (ActivityNotFoundException e) {
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
+
+                    }).flatMap(isStartActivitySuccessful -> tracking.map(isTrackingSuccessful -> new PushDetails(url, null, isTrackingSuccessful, isStartActivitySuccessful, null)));
+                }
+            } catch (Exception e) {
+                log.f(e.getMessage(), e);
+                return  Observable.fromCallable(() -> new PushDetails(null, null,false, false, e));
+            }
+        } else if (i.hasExtra(PushDataKeys.KEY_PUSH_DATA)) {
+            try {
+                JSONObject data = new JSONObject((String) i.getSerializableExtra(PushDataKeys.KEY_PUSH_DEEP_LINK));
+                return  Observable.fromCallable(() -> new PushDetails(null, data,false, false, null));
+            } catch (Exception e) {
+                return  Observable.fromCallable(() -> new PushDetails(null, null,false, false, e));
+            }
+        }
+
+        return  Observable.fromCallable(() -> new PushDetails(null, null, false, false, null));
     }
 }

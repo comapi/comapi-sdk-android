@@ -22,6 +22,8 @@ package com.comapi;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 
 import com.comapi.internal.CallbackAdapter;
@@ -136,5 +138,9 @@ public class RxComapiClient extends BaseClient<RxServiceAccessor> {
 
     protected RxComapiService getComapiService() {
         return service;
+    }
+
+    public Observable<PushDetails> handlePush(Context activityContext, Intent i, boolean startActivity) {
+        return super.handlePushNotification(activityContext, i, startActivity);
     }
 }

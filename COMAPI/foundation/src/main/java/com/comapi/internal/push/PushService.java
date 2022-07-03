@@ -21,7 +21,6 @@
 package com.comapi.internal.push;
 
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 

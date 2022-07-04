@@ -22,12 +22,15 @@ package com.comapi;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 
 import com.comapi.internal.CallbackAdapter;
 import com.comapi.internal.lifecycle.LifecycleListener;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.api.RxComapiService;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.io.File;
 
@@ -136,5 +139,13 @@ public class RxComapiClient extends BaseClient<RxServiceAccessor> {
 
     protected RxComapiService getComapiService() {
         return service;
+    }
+
+    public Observable<PushDetails> handlePush(Context activityContext, Intent i, boolean startActivity) {
+        return super.handlePushNotification(activityContext, i, startActivity);
+    }
+
+    public Observable<PushDetails> handlePush(RemoteMessage message) {
+        return super.handlePushNotification(message);
     }
 }

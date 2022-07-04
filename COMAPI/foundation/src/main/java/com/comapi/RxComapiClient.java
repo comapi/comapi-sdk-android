@@ -141,11 +141,11 @@ public class RxComapiClient extends BaseClient<RxServiceAccessor> {
         return service;
     }
 
-    public Observable<PushDetails> handlePush(Context activityContext, Intent i, boolean startActivity) {
+    public Observable<PushHandleResult> handlePush(Context activityContext, Intent i, boolean startActivity) {
         return super.handlePushNotification(activityContext, i, startActivity);
     }
 
-    public Observable<PushDetails> handlePush(RemoteMessage message) {
-        return super.handlePushNotification(message);
+    public Observable<PushDetails> parsePushMessage(RemoteMessage message) {
+        return BaseClient.parsePush(message);
     }
 }

@@ -124,11 +124,12 @@ public class ComapiClient extends BaseClient<ServiceAccessor> {
      *                 isTrackingSuccessful - was call to record a click for analytics successful;
      *                 isStartActivitySuccessful - was starting activity from url successful
      */
-    public void handlePush(Context activityContext, Intent i, boolean startActivity, Callback<PushDetails> callback) {
+    public void handlePush(Context activityContext, Intent i, boolean startActivity, Callback<PushHandleResult> callback) {
         adapter.adapt(super.handlePushNotification(activityContext, i, startActivity),callback);
     }
 
-    public void handlePush(RemoteMessage remoteMessage, Callback<PushDetails> callback) {
-        adapter.adapt(super.handlePushNotification(remoteMessage),callback);
+    public static void parsePushMessage(RemoteMessage message, Callback<PushDetails> callback) {
+        CallbackAdapter adapter = new CallbackAdapter();
+        adapter.adapt(BaseClient.parsePush(message), callback);
     }
 }

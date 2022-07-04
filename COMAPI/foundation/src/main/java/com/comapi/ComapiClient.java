@@ -27,6 +27,7 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 
 import com.comapi.internal.CallbackAdapter;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.io.File;
 
@@ -125,5 +126,9 @@ public class ComapiClient extends BaseClient<ServiceAccessor> {
      */
     public void handlePush(Context activityContext, Intent i, boolean startActivity, Callback<PushDetails> callback) {
         adapter.adapt(super.handlePushNotification(activityContext, i, startActivity),callback);
+    }
+
+    public void handlePush(RemoteMessage remoteMessage, Callback<PushDetails> callback) {
+        adapter.adapt(super.handlePushNotification(remoteMessage),callback);
     }
 }

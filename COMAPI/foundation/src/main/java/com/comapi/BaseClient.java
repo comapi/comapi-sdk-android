@@ -414,7 +414,7 @@ public abstract class BaseClient<T> implements IClient<T> {
         listenerListAdapter.removeListener(listener);
     }
 
-    protected Observable<PushDetails> handlePushNotification(Context activityContext, Intent i, boolean startActivity) {
+    protected Observable<PushHandleResult> handlePushNotification(Context activityContext, Intent i, boolean startActivity) {
         if (i.hasExtra(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
             JSONObject deepLinkData;
             try {
@@ -445,25 +445,26 @@ public abstract class BaseClient<T> implements IClient<T> {
                             return false;
                         }
 
-                    }).flatMap(isStartActivitySuccessful -> tracking.map(isTrackingSuccessful -> new PushDetails(url, null, isTrackingSuccessful, isStartActivitySuccessful, null)));
+                    }).flatMap(isStartActivitySuccessful -> tracking.map(isTrackingSuccessful -> new PushHandleResult(url, null, isTrackingSuccessful, isStartActivitySuccessful)));
                 }
             } catch (Exception e) {
                 log.f(e.getMessage(), e);
-                return  Observable.fromCallable(() -> new PushDetails(null, null,false, false, e));
+                return Observable.error(e);
             }
         } else if (i.hasExtra(PushDataKeys.KEY_PUSH_DATA)) {
             try {
                 JSONObject data = new JSONObject((String) i.getSerializableExtra(PushDataKeys.KEY_PUSH_DATA));
-                return  Observable.fromCallable(() -> new PushDetails(null, data,false, false, null));
+                return  Observable.fromCallable(() -> new PushHandleResult(null, data, false, false));
             } catch (Exception e) {
-                return  Observable.fromCallable(() -> new PushDetails(null, null,false, false, e));
+                return  Observable.error(e);
             }
         }
 
-        return  Observable.fromCallable(() -> new PushDetails(null, null, false, false, null));
+        return  Observable.fromCallable(() -> new PushHandleResult(null, null, false, false));
     }
 
-    protected Observable<PushDetails> handlePushNotification(RemoteMessage message) {
+    static protected Observable<PushDetails> parsePush(RemoteMessage message) {
+        RemoteMessage.Notification n = message.getNotification();
         if (message.getData().containsKey(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
             String deepLinkDataJson = message.getData().get(PushDataKeys.KEY_PUSH_DEEP_LINK);
             try {
@@ -471,23 +472,21 @@ public abstract class BaseClient<T> implements IClient<T> {
                 JSONObject deepLinkData = new JSONObject(deepLinkDataJson);
                 if (deepLinkData.has(PushDataKeys.KEY_PUSH_URL)) {
                     String url = deepLinkData.getString(PushDataKeys.KEY_PUSH_URL);
-                    return Observable.fromCallable(() -> new PushDetails(url, null, false, false, null));
+                    return  Observable.fromCallable(() -> new PushDetails(url, null));
                 }
             } catch (Exception e) {
-                log.f(e.getMessage(), e);
-                return  Observable.fromCallable(() -> new PushDetails(null, null,false, false, e));
+                return Observable.error(e);
             }
         } else if (message.getData().containsKey(PushDataKeys.KEY_PUSH_DATA)) {
             String dataJson = message.getData().get(PushDataKeys.KEY_PUSH_DATA);
             try {
                 assert dataJson != null;
                 JSONObject data = new JSONObject(dataJson);
-                return  Observable.fromCallable(() -> new PushDetails(null, data,false, false, null));
+                return  Observable.fromCallable(() -> new PushDetails(null, data));
             } catch (Exception e) {
-                return  Observable.fromCallable(() -> new PushDetails(null, null,false, false, e));
+                return Observable.error(e);
             }
         }
-
-        return  Observable.fromCallable(() -> new PushDetails(null, null, false, false, null));
+        return  Observable.fromCallable(() -> new PushDetails(null, null));
     }
 }

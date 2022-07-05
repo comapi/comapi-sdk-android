@@ -30,7 +30,6 @@ import com.comapi.internal.CallbackAdapter;
 import com.comapi.internal.lifecycle.LifecycleListener;
 import com.comapi.internal.log.Logger;
 import com.comapi.internal.network.api.RxComapiService;
-import com.google.firebase.messaging.RemoteMessage;
 
 import java.io.File;
 
@@ -141,11 +140,18 @@ public class RxComapiClient extends BaseClient<RxServiceAccessor> {
         return service;
     }
 
-    public Observable<PushHandleResult> handlePush(Context activityContext, Intent i, boolean startActivity) {
-        return super.handlePushNotification(activityContext, i, startActivity);
-    }
-
-    public Observable<PushDetails> parsePushMessage(RemoteMessage message) {
-        return BaseClient.parsePush(message);
+    /**
+     * Handles click push notification tracking and opens deep link
+     * @param activityContext pass calling activity here
+     * @param i intent that is retrieved by getIntent() in onCreate or intent passed to onNewIntent lifecycle callbacks
+     * @param startActivity should start activity from deep link url
+     * @return Observable containing result of the push notification processing
+     *         getUrl - url passed as a deep link with the notification
+     *         getData - data passed with the notification by dotdigital program
+     *         isTrackingSuccessful - was call to record a click for analytics successful;
+     *         isStartActivitySuccessful - was starting activity from url successful
+     */
+    public Observable<PushHandleResult> handlePushNotification(Context activityContext, Intent i, boolean startActivity) {
+        return super.handlePush(activityContext, i, startActivity);
     }
 }

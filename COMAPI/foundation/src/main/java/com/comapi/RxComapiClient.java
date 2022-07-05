@@ -147,6 +147,7 @@ public class RxComapiClient extends BaseClient<RxServiceAccessor> {
      * @param startActivity should start activity from deep link url
      * @return Observable containing result of the push notification processing
      *         getUrl - url passed as a deep link with the notification
+     *         getData - data passed with the notification by dotdigital program
      *         isTrackingSuccessful - was call to record a click for analytics successful;
      *         isStartActivitySuccessful - was starting activity from url successful
      */

@@ -120,7 +120,8 @@ public class ComapiClient extends BaseClient<ServiceAccessor> {
      * @param i intent that is retrieved by getIntent() in onCreate or intent passed to onNewIntent lifecycle callbacks
      * @param startActivity should start activity from deep link url
      * @param callback Contains result of the push notification processing
-     *                 getUrl - url passed as a deep link with the notification
+     *                 getUrl - url passed as a deep link with the notification by dotdigital program
+     *                 getData - data passed with the notification by dotdigital program
      *                 isTrackingSuccessful - was call to record a click for analytics successful;
      *                 isStartActivitySuccessful - was starting activity from url successful
      */

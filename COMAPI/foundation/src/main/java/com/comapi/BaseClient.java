@@ -21,12 +21,16 @@
 package com.comapi;
 
 import android.app.Application;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
 
 import com.comapi.internal.CallbackAdapter;
 import com.comapi.internal.ComapiException;
@@ -46,7 +50,12 @@ import com.comapi.internal.network.SessionController;
 import com.comapi.internal.network.SessionCreateManager;
 import com.comapi.internal.network.api.RestApi;
 import com.comapi.internal.network.sockets.SocketController;
+import com.comapi.internal.push.PushDataKeys;
 import com.comapi.internal.push.PushManager;
+import com.google.firebase.messaging.RemoteMessage;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -213,8 +222,6 @@ public abstract class BaseClient<T> implements IClient<T> {
                 SocketController socketController = service.initialiseSocketClient(sessionController, listenerListAdapter, baseURIs);
                 lifecycleListeners.add(socketController.createLifecycleListener());
                 initialiseLifecycleObserver(application);
-
-                pushMgr.setService(service);
 
                 sub.onNext(state.compareAndSet(GlobalState.INITIALISING, GlobalState.INITIALISED));
                 sub.onCompleted();
@@ -406,5 +413,84 @@ public abstract class BaseClient<T> implements IClient<T> {
     @Override
     public void removeListener(StateListener listener) {
         listenerListAdapter.removeListener(listener);
+    }
+
+    protected Observable<PushHandleResult> handlePush(Context activityContext, Intent i, boolean startActivity) {
+        if (i.hasExtra(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
+            JSONObject deepLinkData;
+            try {
+                deepLinkData = new JSONObject((String) i.getSerializableExtra(PushDataKeys.KEY_PUSH_DEEP_LINK));
+                if (deepLinkData.has(PushDataKeys.KEY_PUSH_URL)) {
+                    String url = deepLinkData.getString(PushDataKeys.KEY_PUSH_URL);
+                    Observable<Boolean> tracking;
+                    if (deepLinkData.has(PushDataKeys.KEY_PUSH_TRACKING_URL)) {
+                        String trackingUrl = deepLinkData.getString(PushDataKeys.KEY_PUSH_TRACKING_URL);
+                        tracking = service.sendClickData(trackingUrl);
+                    } else {
+                        tracking = Observable.fromCallable(() -> false);
+                    }
+                    return Observable.fromCallable(() -> {
+                        if (startActivity) {
+                            Intent intent = new Intent();
+                            intent.setData(Uri.parse(url));
+                            intent.setAction(Intent.ACTION_VIEW);
+                            intent.addCategory(Intent.CATEGORY_DEFAULT);
+                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                            try {
+                                activityContext.startActivity(intent);
+                                return true;
+                            } catch (ActivityNotFoundException e) {
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
+
+                    }).flatMap(isStartActivitySuccessful -> tracking.map(isTrackingSuccessful -> new PushHandleResult(url, null, isTrackingSuccessful, isStartActivitySuccessful)));
+                }
+            } catch (Exception e) {
+                log.f(e.getMessage(), e);
+                return Observable.error(e);
+            }
+        } else if (i.hasExtra(PushDataKeys.KEY_PUSH_DATA)) {
+            try {
+                JSONObject data = new JSONObject((String) i.getSerializableExtra(PushDataKeys.KEY_PUSH_DATA));
+                return  Observable.fromCallable(() -> new PushHandleResult(null, data, false, false));
+            } catch (Exception e) {
+                return  Observable.error(e);
+            }
+        }
+
+        return  Observable.fromCallable(() -> new PushHandleResult(null, null, false, false));
+    }
+
+    /**
+     * Parse Firebase Push RemoteNotification to extract deep link url or data send with Dotdigital program
+     * @param message RemoteMessage received in a push handler implementing PushMessageListener registered with SDK initialisation call.
+     * @return parsed deep link url or data
+     */
+    static public PushDetails parsePushMessage(RemoteMessage message) throws JSONException {
+        RemoteMessage.Notification n = message.getNotification();
+        if (message.getData().containsKey(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
+            String deepLinkDataJson = message.getData().get(PushDataKeys.KEY_PUSH_DEEP_LINK);
+            if (deepLinkDataJson != null) {
+                JSONObject deepLinkData = new JSONObject(deepLinkDataJson);
+                if (deepLinkData.has(PushDataKeys.KEY_PUSH_URL)) {
+                    String url = deepLinkData.getString(PushDataKeys.KEY_PUSH_URL);
+                    return new PushDetails(url, null);
+                }
+            } else {
+                return new PushDetails(null, null);
+            }
+        } else if (message.getData().containsKey(PushDataKeys.KEY_PUSH_DATA)) {
+            String dataJson = message.getData().get(PushDataKeys.KEY_PUSH_DATA);
+            if (dataJson != null) {
+                JSONObject data = new JSONObject(dataJson);
+                return  new PushDetails(null, data);
+            } else {
+                return new PushDetails(null, null);
+            }
+        }
+        return new PushDetails(null, null);
     }
 }

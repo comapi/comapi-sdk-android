@@ -32,6 +32,8 @@
     <!-- SDK will receive a notification when phone finish booting. This is to restore the services and keep SDK responsive -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application>
 
         <!-- Broadcast receiver for boot completed broadcasts to resume work after device restart. -->
@@ -44,9 +46,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-
-        <receiver android:name="com.comapi.internal.receivers.NotificationClickReceiver"
-            android:exported="false"/>
 
         <!-- Service to handle Instance ID service token refresh notifications for FCM security. -->
         <service

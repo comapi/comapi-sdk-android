@@ -22,6 +22,8 @@ package com.comapi;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 
 import com.comapi.internal.CallbackAdapter;
@@ -136,5 +138,20 @@ public class RxComapiClient extends BaseClient<RxServiceAccessor> {
 
     protected RxComapiService getComapiService() {
         return service;
+    }
+
+    /**
+     * Handles click push notification tracking and opens deep link
+     * @param activityContext pass calling activity here
+     * @param i intent that is retrieved by getIntent() in onCreate or intent passed to onNewIntent lifecycle callbacks
+     * @param startActivity should start activity from deep link url
+     * @return Observable containing result of the push notification processing
+     *         getUrl - url passed as a deep link with the notification
+     *         getData - data passed with the notification by dotdigital program
+     *         isTrackingSuccessful - was call to record a click for analytics successful;
+     *         isStartActivitySuccessful - was starting activity from url successful
+     */
+    public Observable<PushHandleResult> handlePushNotification(Context activityContext, Intent i, boolean startActivity) {
+        return super.handlePush(activityContext, i, startActivity);
     }
 }

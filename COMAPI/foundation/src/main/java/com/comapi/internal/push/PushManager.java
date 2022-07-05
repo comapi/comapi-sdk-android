@@ -27,7 +27,6 @@ import android.os.Handler;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.comapi.internal.log.Logger;
-import com.comapi.internal.network.InternalService;
 import com.comapi.internal.receivers.PushBroadcastReceiver;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailabilityLight;
@@ -52,8 +51,6 @@ public class PushManager {
 
     private PushTokenProvider provider;
 
-    private LocalNotificationsManager lNM;
-
     /**
      * Initialise PushManager.
      *
@@ -76,7 +73,6 @@ public class PushManager {
             }
             return null;
         };
-        this.lNM = new LocalNotificationsManager(context, log);
         registerPushReceiver(mainThreadHandler, context, this.provider, tokenListener, messageListener);
     }
 
@@ -95,7 +91,7 @@ public class PushManager {
         filter.addAction(PushService.ACTION_PUSH_MESSAGE);
         filter.addAction(PushDataKeys.PUSH_CLICK_ACTION);
 
-        receiver = new PushBroadcastReceiver(mainThreadHandler, provider, tokenListener, messageListener, lNM, log);
+        receiver = new PushBroadcastReceiver(mainThreadHandler, provider, tokenListener, messageListener);
         LocalBroadcastManager.getInstance(context.getApplicationContext()).registerReceiver(receiver, filter);
     }
 
@@ -136,9 +132,5 @@ public class PushManager {
             }
             return false;
         }
-    }
-
-    public void setService(InternalService service) {
-        lNM.setService(service);
     }
 }

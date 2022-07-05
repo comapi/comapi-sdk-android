@@ -54,6 +54,7 @@ import com.comapi.internal.push.PushDataKeys;
 import com.comapi.internal.push.PushManager;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -414,7 +415,7 @@ public abstract class BaseClient<T> implements IClient<T> {
         listenerListAdapter.removeListener(listener);
     }
 
-    protected Observable<PushHandleResult> handlePushNotification(Context activityContext, Intent i, boolean startActivity) {
+    protected Observable<PushHandleResult> handlePush(Context activityContext, Intent i, boolean startActivity) {
         if (i.hasExtra(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
             JSONObject deepLinkData;
             try {
@@ -463,30 +464,33 @@ public abstract class BaseClient<T> implements IClient<T> {
         return  Observable.fromCallable(() -> new PushHandleResult(null, null, false, false));
     }
 
-    static protected Observable<PushDetails> parsePush(RemoteMessage message) {
+    /**
+     * Parse Firebase Push RemoteNotification to extract deep link url or data send with Dotdigital program
+     * @param message RemoteMessage received in a push handler implementing PushMessageListener registered with SDK initialisation call.
+     * @return parsed deep link url or data
+     */
+    static public PushDetails parsePushMessage(RemoteMessage message) throws JSONException {
         RemoteMessage.Notification n = message.getNotification();
         if (message.getData().containsKey(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
             String deepLinkDataJson = message.getData().get(PushDataKeys.KEY_PUSH_DEEP_LINK);
-            try {
-                assert deepLinkDataJson != null;
+            if (deepLinkDataJson != null) {
                 JSONObject deepLinkData = new JSONObject(deepLinkDataJson);
                 if (deepLinkData.has(PushDataKeys.KEY_PUSH_URL)) {
                     String url = deepLinkData.getString(PushDataKeys.KEY_PUSH_URL);
-                    return  Observable.fromCallable(() -> new PushDetails(url, null));
+                    return new PushDetails(url, null);
                 }
-            } catch (Exception e) {
-                return Observable.error(e);
+            } else {
+                return new PushDetails(null, null);
             }
         } else if (message.getData().containsKey(PushDataKeys.KEY_PUSH_DATA)) {
             String dataJson = message.getData().get(PushDataKeys.KEY_PUSH_DATA);
-            try {
-                assert dataJson != null;
+            if (dataJson != null) {
                 JSONObject data = new JSONObject(dataJson);
-                return  Observable.fromCallable(() -> new PushDetails(null, data));
-            } catch (Exception e) {
-                return Observable.error(e);
+                return  new PushDetails(null, data);
+            } else {
+                return new PushDetails(null, null);
             }
         }
-        return  Observable.fromCallable(() -> new PushDetails(null, null));
+        return new PushDetails(null, null);
     }
 }

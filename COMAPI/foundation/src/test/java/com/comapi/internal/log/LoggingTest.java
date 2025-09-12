@@ -23,7 +23,6 @@ package com.comapi.internal.log;
 import android.app.Application;
 import android.os.Build;
 
-import com.comapi.BuildConfig;
 import com.comapi.helpers.FileHelper;
 
 import org.junit.Assume;

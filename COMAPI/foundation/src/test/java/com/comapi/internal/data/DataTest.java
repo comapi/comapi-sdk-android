@@ -22,7 +22,6 @@ package com.comapi.internal.data;
 
 import android.os.Build;
 
-import com.comapi.BuildConfig;
 import com.comapi.internal.log.LogManager;
 
 import com.comapi.internal.log.Logger;

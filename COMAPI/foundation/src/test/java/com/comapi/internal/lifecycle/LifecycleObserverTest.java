@@ -25,8 +25,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.comapi.BuildConfig;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

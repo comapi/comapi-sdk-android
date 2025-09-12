@@ -1,35 +1,42 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+    id 'org.jreleaser' version '1.20.0'
+}
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion '30.0.3'
+    namespace 'com.comapi'
+    compileSdk = 33
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 30
+        minSdk = 16
+        targetSdk = 33
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testCoverageEnabled = false
         }
         debug {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testCoverageEnabled = false
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    lintOptions {
-        abortOnError false
+        sourceCompatibility = JavaVersion.toVersion("1.8")
+        targetCompatibility = JavaVersion.toVersion("1.8")
     }
     testOptions {
         unitTests {
             includeAndroidResources = true
+        }
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
         }
     }
 }
@@ -47,28 +54,107 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.4.0'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.9.0'
     /* Rx */
-    compile 'io.reactivex:rxjava:1.3.3'
-    compile 'io.reactivex:rxandroid:1.2.1'
-    compile 'com.squareup.retrofit2:adapter-rxjava:2.3.0'
+    implementation 'io.reactivex:rxjava:1.3.3'
+    implementation 'io.reactivex:rxandroid:1.2.1'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.3.0'
     /* Network */
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
-
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.6.0'
     /*FCM*/
-    //noinspection GradleCompatible warning disabled (seems to be caused by internal firebase-messaging dependencies versioning)
-    compile platform('com.google.firebase:firebase-bom:28.4.0')
-    compile 'com.google.firebase:firebase-messaging'
-    compile 'com.google.android.gms:play-services-base:18.0.1'
-
+    //noinspection BomWithoutPlatform
+    implementation 'com.google.firebase:firebase-bom:28.4.0'
+    implementation 'com.google.firebase:firebase-messaging:22.0.0'
+    implementation 'com.google.android.gms:play-services-base:18.0.1'
     /*Sockets*/
-    compile 'com.neovisionaries:nv-websocket-client:2.3'
+    implementation 'com.neovisionaries:nv-websocket-client:2.3'
 }
 
-ext {
-    PUBLISH_GROUP_ID = 'com.comapi'
-    PUBLISH_VERSION = '1.5.1'
-    PUBLISH_ARTIFACT_ID = 'foundation'
+publishing {
+
+    publications {
+        maven(MavenPublication) {
+
+            groupId = 'com.comapi'
+            artifactId = 'foundation'
+            version = '1.5.2'
+
+            pom {
+                name = 'Dotdigital Foundation SDK'
+                description = 'Provides the basics of any Dotdigital integration into your apps. The Dotdigital Foundation SDK is responsible for handling: registration, control of User and Device registration details, sending and receiving content & data.'
+                url = 'https://dotdigital.com/'
+                inceptionYear = '2021'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'marcinswierczek'
+                        name = 'Marcin Swierczek'
+                        email = 'cpaas.info@dotdigital.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/comapi/comapi-sdk-android'
+                    connection = 'scm:git:https://github.com/comapi/comapi-sdk-android.git'
+                    developerConnection = 'scm:git:https://github.com/comapi/comapi-sdk-android.git'
+                }
+                pom.withXml {
+                    def buildNode = asNode().appendNode('build')
+                    def pluginsNode = buildNode.appendNode('plugins')
+                    def pluginNode = pluginsNode.appendNode('plugin')
+                    pluginNode.appendNode('groupId', 'com.simpligility.maven.plugins')
+                    pluginNode.appendNode('artifactId', 'android-maven-plugin')
+                    pluginNode.appendNode('version', '4.6.0')
+                    pluginNode.appendNode('extensions', 'true')
+                }
+                afterEvaluate {
+                    from(components["release"])
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
 }
 
-apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
+jreleaser {
+    gitRootSearch = true
+    version = '1.5.2'
+    signing {
+        active = 'ALWAYS'
+        armored = true
+        mode = 'FILE'
+        publicKey = 'C:\\Users\\Marcin.Swierczek\\public.pgp'
+        secretKey = 'C:\\Users\\Marcin.Swierczek\\private.pgp'
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('build/staging-deploy')
+                }
+            }
+        }
+    }
+    release {
+        github {
+            skipRelease = true
+            skipTag = true
+            token = '<skip>'
+            commitAuthor {
+                name = "MarcinSwierczek"
+                email = 'cpaas.info@dotdigital.com'
+            }
+        }
+    }
+}

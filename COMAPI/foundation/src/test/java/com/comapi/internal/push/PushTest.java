@@ -26,7 +26,6 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.comapi.BuildConfig;
 import com.comapi.internal.log.LogManager;
 import com.comapi.internal.log.Logger;
 import com.comapi.mock.ShadowGoogleApiAvailability;

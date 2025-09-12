@@ -27,7 +27,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 
-import com.comapi.BuildConfig;
 import com.comapi.helpers.DataTestHelper;
 import com.comapi.internal.ListenerListAdapter;
 import com.comapi.internal.data.DataManager;

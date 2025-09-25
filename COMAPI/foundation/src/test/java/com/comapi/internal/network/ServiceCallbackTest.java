@@ -28,7 +28,6 @@ import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.comapi.APIConfig;
-import com.comapi.BuildConfig;
 import com.comapi.Callback;
 import com.comapi.GlobalState;
 import com.comapi.QueryBuilder;

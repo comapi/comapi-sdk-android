@@ -23,8 +23,6 @@ package com.comapi.internal.helpers;
 import android.content.Context;
 import android.os.Build;
 
-import com.comapi.BuildConfig;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;

@@ -26,7 +26,6 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import com.comapi.APIConfig;
-import com.comapi.BuildConfig;
 import com.comapi.GlobalState;
 import com.comapi.QueryBuilder;
 import com.comapi.StateListener;

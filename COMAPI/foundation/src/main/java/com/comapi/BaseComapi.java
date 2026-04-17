@@ -38,7 +38,7 @@ class BaseComapi {
     /**
      * Version of the ComapiImpl SDK MAJOR.MINOR.PATCH.BUILD
      */
-    private final static String SDK_VERSION = "1.5.2";
+    private final static String SDK_VERSION = "1.6.0";
 
     private static final Set<String> apiSpaces = Collections.synchronizedSet(new HashSet<String>());
 

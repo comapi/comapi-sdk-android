@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    namespace 'com.comapi'
-    compileSdk = 33
+    namespace = 'com.comapi'
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 16
-        targetSdk = 33
+        targetSdk = 36
     }
     buildTypes {
         release {
@@ -25,8 +25,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.toVersion("1.8")
-        targetCompatibility = JavaVersion.toVersion("1.8")
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     testOptions {
         unitTests {
@@ -77,7 +77,7 @@ publishing {
 
             groupId = 'com.comapi'
             artifactId = 'foundation'
-            version = '1.5.2'
+            version = '1.6.0'
 
             pom {
                 name = 'Dotdigital Foundation SDK'
@@ -127,7 +127,7 @@ publishing {
 
 jreleaser {
     gitRootSearch = true
-    version = '1.5.2'
+    version = '1.6.0'
     signing {
         active = 'ALWAYS'
         armored = true

@@ -470,27 +470,27 @@ public abstract class BaseClient<T> implements IClient<T> {
      * @return parsed deep link url or data
      */
     static public PushDetails parsePushMessage(RemoteMessage message) throws JSONException {
-        RemoteMessage.Notification n = message.getNotification();
+        boolean ddOriginated = "true".equalsIgnoreCase(message.getData().get("dd_originated"));
         if (message.getData().containsKey(PushDataKeys.KEY_PUSH_DEEP_LINK)) {
             String deepLinkDataJson = message.getData().get(PushDataKeys.KEY_PUSH_DEEP_LINK);
             if (deepLinkDataJson != null) {
                 JSONObject deepLinkData = new JSONObject(deepLinkDataJson);
                 if (deepLinkData.has(PushDataKeys.KEY_PUSH_URL)) {
                     String url = deepLinkData.getString(PushDataKeys.KEY_PUSH_URL);
-                    return new PushDetails(url, null);
+                    return new PushDetails(url, null, ddOriginated);
                 }
             } else {
-                return new PushDetails(null, null);
+                return new PushDetails(null, null, ddOriginated);
             }
         } else if (message.getData().containsKey(PushDataKeys.KEY_PUSH_DATA)) {
             String dataJson = message.getData().get(PushDataKeys.KEY_PUSH_DATA);
             if (dataJson != null) {
                 JSONObject data = new JSONObject(dataJson);
-                return  new PushDetails(null, data);
+                return new PushDetails(null, data, ddOriginated);
             } else {
-                return new PushDetails(null, null);
+                return new PushDetails(null, null, ddOriginated);
             }
         }
-        return new PushDetails(null, null);
+        return new PushDetails(null, null, ddOriginated);
     }
 }

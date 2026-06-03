@@ -10,10 +10,16 @@ public class PushDetails {
     private final String url;
     @Nullable
     private final JSONObject data;
+    private final boolean ddOriginated;
 
     public PushDetails(@Nullable String url, @Nullable JSONObject data) {
+        this(url, data, false);
+    }
+
+    public PushDetails(@Nullable String url, @Nullable JSONObject data, boolean ddOriginated) {
         this.url = url;
         this.data = data;
+        this.ddOriginated = ddOriginated;
     }
 
     @Nullable
@@ -24,5 +30,9 @@ public class PushDetails {
     @Nullable
     public JSONObject getData() {
         return data;
+    }
+
+    public boolean isDdOriginated() {
+        return ddOriginated;
     }
 }

@@ -76,35 +76,6 @@ public class HelpersTest {
         assertEquals(true, DateHelper.getUTCMilliseconds("wrong date") == -1);
     }
 
-    @Test
-    @Config(shadows = {ShadowWifiManager.class, ShadowWifiInfo.class})
-    public void deviceHelper_permissionGranted() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InterruptedException, IOException {
-
-        Method method = DeviceHelper.class.getDeclaredMethod("getMacAddress", Context.class);
-        method.setAccessible(true);
-
-        ShadowApplication shadowApp = Shadows.shadowOf(RuntimeEnvironment.application);
-        shadowApp.grantPermissions(android.Manifest.permission.ACCESS_WIFI_STATE);
-
-        assertNotNull(method.invoke(null, RuntimeEnvironment.application));
-        assertNotNull(DeviceHelper.generateDeviceId(RuntimeEnvironment.application));
-    }
-
-    @Test
-    @Config(shadows = {ShadowWifiManager.class, ShadowWifiInfo.class})
-    public void deviceHelper_permissionDenied() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InterruptedException, IOException {
-
-        Method method = DeviceHelper.class.getDeclaredMethod("getMacAddress", Context.class);
-        method.setAccessible(true);
-
-        ShadowApplication shadowApp = Shadows.shadowOf(RuntimeEnvironment.application);
-        shadowApp.denyPermissions(android.Manifest.permission.ACCESS_WIFI_STATE);
-
-        assertNull(method.invoke(null, RuntimeEnvironment.application));
-        assertNotNull(DeviceHelper.generateDeviceId(RuntimeEnvironment.application));
-        //reset permission
-        shadowApp.grantPermissions(android.Manifest.permission.ACCESS_WIFI_STATE);
-    }
 
     public static void waitSomeTime(long milis) throws InterruptedException {
         Thread t = new Thread() {

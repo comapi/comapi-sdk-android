@@ -75,7 +75,7 @@ publishing {
 
             groupId = 'com.comapi'
             artifactId = 'foundation'
-            version = '1.6.0'
+            version = '1.7.0'
 
             pom {
                 name = 'Dotdigital Foundation SDK'
@@ -125,7 +125,7 @@ publishing {
 
 jreleaser {
     gitRootSearch = true
-    version = '1.6.0'
+    version = '1.7.0'
     signing {
         active = 'ALWAYS'
         armored = true

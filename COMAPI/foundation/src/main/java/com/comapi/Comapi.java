@@ -47,6 +47,7 @@ public class Comapi extends BaseComapi {
         String error = checkIfCanInitialise(app, config, false);
         if (!TextUtils.isEmpty(error) && callback != null) {
             callback.error(new Exception(error));
+            return;
         }
 
         ComapiClient client = new ComapiClient(config);
@@ -59,9 +60,10 @@ public class Comapi extends BaseComapi {
      */
     public static void initialiseShared(@NonNull Application app, @NonNull ComapiConfig config, Callback<ComapiClient> callback) {
 
-        String error = checkIfCanInitialise(app, config, false);
+        String error = checkIfCanInitialise(app, config, true);
         if (!TextUtils.isEmpty(error) && callback != null) {
             callback.error(new Exception(error));
+            return;
         }
 
         ComapiClient client = createShared(config);

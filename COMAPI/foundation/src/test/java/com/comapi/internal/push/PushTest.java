@@ -102,7 +102,7 @@ public class PushTest {
 
         setUpComapi(TOKEN);
 
-        Intent intent = new Intent(IDService.ACTION_REFRESH_PUSH);
+        Intent intent = new Intent(PushService.ACTION_REFRESH_PUSH);
         LocalBroadcastManager.getInstance(RuntimeEnvironment.application).sendBroadcast(intent);
         shadowOf(Looper.getMainLooper()).idle();
         assertEquals(TOKEN, token);

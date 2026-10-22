@@ -43,7 +43,7 @@ import com.comapi.internal.lifecycle.LifecycleListener;
 import com.comapi.internal.log.LogConfig;
 import com.comapi.internal.log.LogLevel;
 import com.comapi.internal.network.AuthManager;
-import com.comapi.internal.push.IDService;
+import com.comapi.internal.push.PushService;
 import com.comapi.internal.receivers.InternetConnectionReceiver;
 import com.comapi.mock.MockAuthenticator;
 import com.comapi.mock.ShadowGoogleApiAvailability;
@@ -139,7 +139,7 @@ public class ComapiClientTest {
         controller.create().start().resume().get();
         HelpersTest.waitSomeTime(1500);
 
-        Intent intent = new Intent(IDService.ACTION_REFRESH_PUSH);
+        Intent intent = new Intent(PushService.ACTION_REFRESH_PUSH);
         LocalBroadcastManager.getInstance(RuntimeEnvironment.application).sendBroadcast(intent);
 
         assertTrue(pc.getState() == GlobalState.SESSION_ACTIVE);

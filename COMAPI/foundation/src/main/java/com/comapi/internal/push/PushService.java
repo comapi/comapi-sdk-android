@@ -22,6 +22,7 @@ package com.comapi.internal.push;
 
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -37,12 +38,21 @@ public class PushService extends FirebaseMessagingService {
 
     public static final String ACTION_PUSH_MESSAGE = "com.comapi.push.message";
 
+    public static final String ACTION_REFRESH_PUSH = "com.comapi.push.refresh";
+
     public static final String KEY_MESSAGE = "message";
 
     @Override
-    public void onMessageReceived(RemoteMessage message) {
+    public void onMessageReceived(@NonNull RemoteMessage message) {
         Intent intent = new Intent(ACTION_PUSH_MESSAGE);
         intent.putExtra(KEY_MESSAGE, message);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    @Override
+    public void onNewToken(@NonNull String token) {
+        super.onNewToken(token);
+        Intent intent = new Intent(ACTION_REFRESH_PUSH);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 }

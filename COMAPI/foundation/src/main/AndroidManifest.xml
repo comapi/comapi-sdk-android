@@ -46,15 +46,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Service to handle Instance ID service token refresh notifications for FCM security. -->
-        <service
-            android:name="com.comapi.internal.push.IDService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
-
         <service
             android:name="com.comapi.internal.push.PushService"
             android:exported="false">

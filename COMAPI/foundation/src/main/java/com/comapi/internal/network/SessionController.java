@@ -321,6 +321,7 @@ public class SessionController extends ApiWrapper {
                 .observeOn(Schedulers.io())
                 .doOnNext(voidResponse -> {
                     dataMgr.getSessionDAO().clearSession();
+                    dataMgr.getDeviceDAO().setPushToken(null);
                     socketController.disconnectSocket();
                     state.compareAndSet(GlobalState.INITIALISING, GlobalState.INITIALISED);
                 })
@@ -329,17 +330,17 @@ public class SessionController extends ApiWrapper {
 
     private Observable<String> getPushToken() {
         return Observable.create((Observable.OnSubscribe<String>) sub -> {
-            String token = dataMgr.getDeviceDAO().device().getPushToken();
-            if (TextUtils.isEmpty(token)) {
-                try {
-                    token = pushMgr.getPushToken();
-                } catch (Exception e) {
-                    log.e("Error obtaining FCM token. No Google Services on the phone?");
-                }
+            String token = null;
+            try {
+                token = pushMgr.getPushToken();
+            } catch (Exception e) {
+                log.e("Error obtaining FCM token. No Google Services on the phone?");
+            }
 
-                if (!TextUtils.isEmpty(token)) {
-                    dataMgr.getDeviceDAO().setPushToken(token);
-                }
+            if (TextUtils.isEmpty(token)) {
+                token = dataMgr.getDeviceDAO().device().getPushToken();
+            } else {
+                dataMgr.getDeviceDAO().setPushToken(token);
             }
             sub.onNext(token);
             sub.onCompleted();

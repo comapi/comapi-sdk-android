@@ -60,7 +60,7 @@ public class RxComapi extends BaseComapi {
      */
     public static Observable<RxComapiClient> initialiseShared(@NonNull Application app, @NonNull ComapiConfig config) {
         String error = checkIfCanInitialise(app, config, true);
-        if (error != null) {
+        if (!TextUtils.isEmpty(error)) {
             return Observable.error(new Exception(error));
         }
 

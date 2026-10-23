@@ -5,6 +5,20 @@ All notable changes to the dotdigital Android SDK will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0]
+
+### Fixed
+- Prevent the same callback from receiving both error(...) and success(...) in invalid initialization scenarios
+- The SDK now refreshes the current Firebase token instead of trusting a stale cached value
+### Changed
+- Token refresh handling was moved from the obsolete IDService to PushService.onNewToken(...)
+
+## [1.7.0] - 2026-06-17
+
+### Changed
+- Added the isDdOriginated function to the PushDetails and PushHandleResult classes.
+  This allows you to determine whether a push message originated from Dotdigital.
+
 ## [1.6.0] - 2026-04-17
 
 ### Changed

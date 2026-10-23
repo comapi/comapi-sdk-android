@@ -87,7 +87,7 @@ public class PushManager {
     private void registerPushReceiver(final Handler mainThreadHandler, final Context context, PushTokenProvider provider, final PushTokenListener tokenListener, final PushMessageListener messageListener) {
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(IDService.ACTION_REFRESH_PUSH);
+        filter.addAction(PushService.ACTION_REFRESH_PUSH);
         filter.addAction(PushService.ACTION_PUSH_MESSAGE);
         filter.addAction(PushDataKeys.PUSH_CLICK_ACTION);
 

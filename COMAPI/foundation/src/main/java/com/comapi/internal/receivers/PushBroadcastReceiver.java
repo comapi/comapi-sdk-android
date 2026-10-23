@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 
-import com.comapi.internal.push.IDService;
 import com.comapi.internal.push.PushMessageListener;
 import com.comapi.internal.push.PushService;
 import com.comapi.internal.push.PushTokenListener;
@@ -55,7 +54,7 @@ public class PushBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (IDService.ACTION_REFRESH_PUSH.equals(intent.getAction())) {
+        if (PushService.ACTION_REFRESH_PUSH.equals(intent.getAction())) {
             tokenListener.onTokenRefresh(provider.getPushToken());
         } else if (PushService.ACTION_PUSH_MESSAGE.equals(intent.getAction())) {
             RemoteMessage msg = intent.getParcelableExtra(PushService.KEY_MESSAGE);

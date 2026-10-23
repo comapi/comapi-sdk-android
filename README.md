@@ -1,6 +1,6 @@
 # dotdigital push and app messaging Android SDK 
 
-Client to connect your Android application with [dotdigital's Engagement Cloud](http://dotdigital.com/) and CPaaS APIs for push and in-app messgaing.
+Client to connect your Android application with [dotdigital's Engagement Cloud](http://dotdigital.com/) and CPaaS APIs for push and in-app messaging.
 
 ## Download
 
@@ -10,14 +10,14 @@ Via Maven
 <dependency>
     <groupId>com.comapi</groupId>
     <artifactId>foundation</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
 </dependency>
 ```
 
 or Gradle
 
 ```
-implementation 'com.comapi:foundation:1.7.0'
+implementation 'com.comapi:foundation:1.8.0'
 ```
 
 For more information about the integration please visit [the website](http://docs.cpaas.dotdigital.com/reference#one-sdk-android-overview).

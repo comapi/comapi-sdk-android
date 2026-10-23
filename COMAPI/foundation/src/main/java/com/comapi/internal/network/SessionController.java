@@ -339,7 +339,7 @@ public class SessionController extends ApiWrapper {
 
             if (TextUtils.isEmpty(token)) {
                 token = dataMgr.getDeviceDAO().device().getPushToken();
-            } else if (!TextUtils.isEmpty(token)) {
+            } else {
                 dataMgr.getDeviceDAO().setPushToken(token);
             }
             sub.onNext(token);

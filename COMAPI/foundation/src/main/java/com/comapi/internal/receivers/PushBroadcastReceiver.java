@@ -55,12 +55,21 @@ public class PushBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (PushService.ACTION_REFRESH_PUSH.equals(intent.getAction())) {
-            tokenListener.onTokenRefresh(provider.getPushToken());
+            String token = intent.getStringExtra(PushService.KEY_TOKEN);
+            if (token != null) {
+                notifyTokenRefresh(token);
+            }
         } else if (PushService.ACTION_PUSH_MESSAGE.equals(intent.getAction())) {
             RemoteMessage msg = intent.getParcelableExtra(PushService.KEY_MESSAGE);
             if (msg != null) {
                 dispatchMessage(messageListener, msg);
             }
+        }
+    }
+
+    private void notifyTokenRefresh(final String token) {
+        if (tokenListener != null) {
+            mainThreadHandler.post(() -> tokenListener.onTokenRefresh(token));
         }
     }
 

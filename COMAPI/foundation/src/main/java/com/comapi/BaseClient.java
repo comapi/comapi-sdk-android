@@ -196,7 +196,7 @@ public abstract class BaseClient<T> implements IClient<T> {
                 pushMgr.init(application.getApplicationContext(), new Handler(mainLooper), log, config.getPushTokenProvider(), token -> {
                     log.d("Refreshed push token is " + token);
                     if (!TextUtils.isEmpty(token)) {
-                        dataMgr.getDeviceDAO().setPushToken(token);
+                        handlePushTokenRefresh(token);
                     }
                 }, config.getPushMessageListener());
 
@@ -462,6 +462,21 @@ public abstract class BaseClient<T> implements IClient<T> {
         }
 
         return  Observable.fromCallable(() -> new PushHandleResult(null, null, false, false));
+    }
+
+    private void handlePushTokenRefresh(@NonNull final String token) {
+        final String currentToken = dataMgr.getDeviceDAO().device().getPushToken();
+
+        if (!TextUtils.equals(currentToken, token)) {
+            dataMgr.getDeviceDAO().setPushToken(token);
+
+            if (service != null && state.get() == GlobalState.SESSION_ACTIVE) {
+                service.updatePushToken()
+                        .doOnNext(sessionComapiResultPair -> log.d("Push token updated"))
+                        .doOnError(throwable -> log.f("Error updating push token", throwable))
+                        .subscribe();
+            }
+        }
     }
 
     /**

@@ -41,6 +41,7 @@ public class PushService extends FirebaseMessagingService {
     public static final String ACTION_REFRESH_PUSH = "com.comapi.push.refresh";
 
     public static final String KEY_MESSAGE = "message";
+    public static final String KEY_TOKEN = "token";
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
@@ -53,6 +54,7 @@ public class PushService extends FirebaseMessagingService {
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
         Intent intent = new Intent(ACTION_REFRESH_PUSH);
+        intent.putExtra(KEY_TOKEN, token);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 }
